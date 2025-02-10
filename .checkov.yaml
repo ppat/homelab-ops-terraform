@@ -13,6 +13,3 @@ skip-check:
 - CKV_GIT_4   # Ensure GitHub Actions secrets are encrypted
 - CKV_GIT_5   # GitHub pull requests should require at least 2 approvals
 - CKV_DOCKER_.*
-# branch: main
-# output: sarif
-# output-file-path: checkov-results.sarif
