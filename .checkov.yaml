@@ -1,8 +1,18 @@
 ---
+compact: true
+deep-analysis: true
 framework:
 - all
 quiet: true
 skip-check:
+# Skip cloud provider specific checks since we're on bare metal
+- CKV_AWS_.*
+- CKV_AZURE_.*
+- CKV_GCP_.*
 - CKV_GIT_1   # Ensure GitHub repository is Private
 - CKV_GIT_4   # Ensure GitHub Actions secrets are encrypted
 - CKV_GIT_5   # GitHub pull requests should require at least 2 approvals
+- CKV_DOCKER_.*
+# branch: main
+# output: sarif
+# output-file-path: checkov-results.sarif

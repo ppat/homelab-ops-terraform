@@ -1,0 +1,17 @@
+---
+ignorefile: .trivyignore.yaml
+scan:
+  security-checks:
+  - misconfig
+  - secret
+  - vuln
+  skip-dirs:
+  - "**/node_modules"
+  - "**/.git"
+  - "**/.terraform"
+severity:
+- MEDIUM
+- CRITICAL
+- HIGH
+vulnerability:
+  ignore-unfixed: true

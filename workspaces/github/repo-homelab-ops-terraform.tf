@@ -6,6 +6,9 @@ module "repo_homelab_ops_terraform" {
     visibility  = "public"
   }
   actions_allowed = [
+    "aquasecurity/trivy-action@*",
+    "bridgecrewio/checkov-action@*",
+    "github/codeql-action/upload-sarif@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
