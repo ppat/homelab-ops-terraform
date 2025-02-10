@@ -43,6 +43,7 @@ module.exports = {
         'github-repository',
         'minio-bucket',
         // workspaces
+        'authentik',
         'github',
         // terraform dependencies
         'terraform-provider',
