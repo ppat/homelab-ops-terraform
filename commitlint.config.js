@@ -38,7 +38,11 @@ module.exports = {
         'github-actions',
         'release',
         'renovate',
+        // modules
+        'github-repository',
         'minio-bucket',
+        // workspaces
+        // terraform dependencies
         'terraform-provider',
         'terraform-version'
       ]
