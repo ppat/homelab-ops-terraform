@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "packageRules": [
     {
-      "allowedVersions": "<1.6",
+      "allowedVersions": "<1.7",
       "commitMessageTopic": "terraform",
       "description": "retain compatibility with opentofu and group terraform upgrades together",
       "groupName": "terraform-{{newVersion}}",
