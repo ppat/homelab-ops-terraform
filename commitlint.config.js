@@ -38,6 +38,7 @@ module.exports = {
         'github-actions',
         'release',
         'renovate',
+        'minio-bucket',
         'terraform-provider',
         'terraform-version'
       ]
