@@ -8,6 +8,11 @@ variable "actions_allowed" {
   default = []
 }
 
+variable "homepage_url" {
+  type    = string
+  default = ""
+}
+
 variable "repository" {
   type = object({
     name        = string
