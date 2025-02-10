@@ -14,6 +14,7 @@ resource "github_repository" "repository" {
   allow_update_branch = true
 
   auto_init              = false
+  homepage_url           = var.homepage_url
   delete_branch_on_merge = true
   topics                 = var.topics
 
