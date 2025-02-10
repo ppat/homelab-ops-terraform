@@ -1,0 +1,76 @@
+---
+# yamllint disable rule:line-length
+name: scan-pr
+
+on:
+  pull_request:
+    paths:
+    - '.checkov.yaml'
+    - '.github/workflows/**'
+    - '.trivyignore.yaml'
+    - 'modules/**/*.tf'
+    - 'workspaces/**/*.tf'
+    - 'trivy.yaml'
+
+permissions: read-all
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      terraform: ${{ steps.changed-files.outputs.terraform_any_changed }}
+      terraform_files: ${{ steps.changed-files.outputs.terraform_all_changed_files }}
+      modules_changed: ${{ steps.filter-paths.outputs.modules_changed }}
+      workspaces_changed: ${{ steps.filter-paths.outputs.workspaces_changed }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@d6e91a2266cdb9d62096cebf1e8546899c6aa18f # v45
+      with:
+        files_yaml: |
+          terraform:
+          - '**.tf'
+          - '**/.terraform-version'
+          - '**/.terraform.lock.hcl'
+
+    - name: Filter terraform paths
+      id: filter-paths
+      if: steps.changed-files.outputs.terraform_any_changed == 'true'
+      run: |
+        modules=$(echo '${{ steps.changed-files.outputs.terraform_all_changed_files }}' | tr ' ' '\n' | grep '^modules/' || echo '')
+        workspaces=$(echo '${{ steps.changed-files.outputs.terraform_all_changed_files }}' | tr ' ' '\n' | grep '^workspaces/' || echo '')
+
+        echo "modules_changed=$([ ! -z "$modules" ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+        echo "workspaces_changed=$([ ! -z "$workspaces" ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
+  trivy-scan:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.terraform == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run Trivy
+      uses: aquasecurity/trivy-action@0.29.0
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        hide-progress: true
+        format: 'github'
+        exit-code: '1'
+        trivy-config: trivy.yaml
+
+  checkov-scan:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.terraform == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run Checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        config_file: .checkov.yaml
+        output_format: github_failed_only
