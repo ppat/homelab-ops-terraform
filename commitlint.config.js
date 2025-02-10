@@ -39,6 +39,7 @@ module.exports = {
         'release',
         'renovate',
         // modules
+        'authentik-oauth2-application',
         'github-repository',
         'minio-bucket',
         // workspaces
