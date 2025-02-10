@@ -8,6 +8,7 @@
       "groupName": "terraform-{{newVersion}}",
       "matchManagers": [
         "mise",
+        "terraform",
         "terraform-version"
       ],
       "matchPackageNames": [
