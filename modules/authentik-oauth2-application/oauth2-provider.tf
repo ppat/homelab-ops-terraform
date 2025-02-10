@@ -23,7 +23,7 @@ resource "bitwarden_secret" "oidc_clientid" {
   note       = "${var.name}'s oidc clientid"
 }
 
-resource "bitwarden_secret" "bucket_owner_secretkey" {
+resource "bitwarden_secret" "oidc_clientsecret" {
   depends_on = [authentik_provider_oauth2.provider]
   key        = "oidc_${replace(var.name, "-", "_")}_clientsecret"
   value      = authentik_provider_oauth2.provider.client_secret
