@@ -3,14 +3,11 @@
   "packageRules": [
     {
       "allowedVersions": "1.6.6",
-      "commitMessageTopic": "terraform",
       "description": "retain compatibility with opentofu and group terraform upgrades together",
-      "groupName": "terraform-{{newVersion}}",
       "matchPackageNames": [
         "hashicorp/terraform",
         "terraform"
-      ],
-      "semanticCommitScope": "terraform-version"
+      ]
     }
   ]
 }
