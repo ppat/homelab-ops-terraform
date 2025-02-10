@@ -45,6 +45,7 @@ module.exports = {
         // workspaces
         'authentik',
         'github',
+        'minio-homelab',
         // terraform dependencies
         'terraform-provider',
         'terraform-version'
