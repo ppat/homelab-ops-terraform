@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "allowedVersions": "<1.6",
+      "commitMessageTopic": "terraform",
+      "description": "retain compatibility with opentofu and group terraform upgrades together",
+      "groupName": "terraform-{{newVersion}}",
+      "matchManagers": [
+        "mise",
+        "terraform-version"
+      ],
+      "matchPackageNames": [
+        "hashicorp/terraform",
+        "terraform"
+      ],
+      "semanticCommitScope": "terraform-version"
+    }
+  ]
+}

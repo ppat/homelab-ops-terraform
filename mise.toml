@@ -1,0 +1,8 @@
+[tools]
+bun = "1.1.43"
+node = "22.13.0"
+terraform = "1.5.7"
+tflint = "0.54.0"
+
+[settings.npm]
+bun = true
