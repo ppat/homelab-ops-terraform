@@ -6,11 +6,6 @@
       "commitMessageTopic": "terraform",
       "description": "retain compatibility with opentofu and group terraform upgrades together",
       "groupName": "terraform-{{newVersion}}",
-      "matchManagers": [
-        "mise",
-        "terraform",
-        "terraform-version"
-      ],
       "matchPackageNames": [
         "hashicorp/terraform",
         "terraform"
