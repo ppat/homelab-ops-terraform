@@ -8,7 +8,9 @@ module "repo_homelab_ops_kubernetes_apps" {
   actions_allowed = [
     "allenporter/flux-local/action/diff@*",
     "fluxcd/flux2/action@*",
+    "fluxcd/pkg/actions/kubeconform@*",
     "fluxcd/pkg/actions/kubectl@*",
+    "fluxcd/pkg/actions/kustomize@*",
     "googleapis/release-please-action@*",
     "helm/kind-action@*",
     "mshick/add-pr-comment@*",
