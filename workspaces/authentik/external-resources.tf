@@ -40,3 +40,15 @@ data "authentik_property_mapping_provider_scope" "offline_access" {
     "goauthentik.io/providers/oauth2/scope-offline_access"
   ]
 }
+
+data "authentik_property_mapping_provider_scope" "entitlements" {
+  managed_list = [
+    "goauthentik.io/providers/oauth2/scope-entitlements"
+  ]
+}
+
+data "authentik_property_mapping_provider_scope" "proxy" {
+  managed_list = [
+    "goauthentik.io/providers/proxy/scope-proxy"
+  ]
+}

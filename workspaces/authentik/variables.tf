@@ -3,27 +3,31 @@ variable "bitwarden_project_id" {
   sensitive = true
 }
 
+variable "clientid_grafana" {
+  type      = string
+  sensitive = true
+}
+
+variable "clientid_harbor" {
+  type      = string
+  sensitive = true
+}
+
+variable "clientid_miniohomelab" {
+  type      = string
+  sensitive = true
+}
+
+variable "clientid_minionas" {
+  type      = string
+  sensitive = true
+}
+
 variable "dns_zone" {
   type = string
 }
 
 variable "signing_key" {
   type    = string
-  default = "jwt-signing" # "authentik Self-signed Certificate"
-}
-
-variable "grafana_client_id" {
-  type = string
-}
-
-variable "harbor_clientid" {
-  type = string
-}
-
-variable "minio_homelab_clientid" {
-  type = string
-}
-
-variable "minio_nas_clientid" {
-  type = string
+  default = "jwt-signing"
 }

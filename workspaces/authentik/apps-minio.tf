@@ -18,7 +18,7 @@ module "oauth2_minio_nas" {
   source               = "../../modules/authentik-oauth2-application"
   name                 = "minio-nas"
   bitwarden_project_id = var.bitwarden_project_id
-  client_id            = var.minio_nas_clientid
+  client_id            = var.clientid_minionas
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
   icon_url             = "https://s3.homelab.${var.dns_zone}/homelab-authentik-media/media/public/application-icons/minio_dKwoWUN.svg"
@@ -39,7 +39,7 @@ module "oauth2_minio_homelab" {
   source               = "../../modules/authentik-oauth2-application"
   name                 = "minio-homelab"
   bitwarden_project_id = var.bitwarden_project_id
-  client_id            = var.minio_homelab_clientid
+  client_id            = var.clientid_miniohomelab
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
   icon_url             = "https://s3.homelab.${var.dns_zone}/homelab-authentik-media/media/public/application-icons/minio.svg"
