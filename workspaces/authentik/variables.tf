@@ -3,6 +3,11 @@ variable "bitwarden_project_id" {
   sensitive = true
 }
 
+variable "clientid_coder" {
+  type      = string
+  sensitive = true
+}
+
 variable "clientid_grafana" {
   type      = string
   sensitive = true
