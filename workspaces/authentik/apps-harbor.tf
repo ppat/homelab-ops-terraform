@@ -2,7 +2,7 @@ module "oauth2_harbor" {
   source               = "../../modules/authentik-oauth2-application"
   name                 = "harbor"
   bitwarden_project_id = var.bitwarden_project_id
-  client_id            = var.harbor_clientid
+  client_id            = var.clientid_harbor
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
   icon_url             = "https://s3.homelab.${var.dns_zone}/homelab-authentik-media/media/public/application-icons/harbor.svg"
