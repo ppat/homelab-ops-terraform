@@ -41,6 +41,7 @@ module.exports = {
         // modules
         'authentik-oauth2-application',
         'github-repository',
+        'harbor-local-registry',
         'minio-bucket',
         // workspaces
         'authentik',
