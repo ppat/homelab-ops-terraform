@@ -40,6 +40,7 @@ module.exports = {
         'renovate',
         // modules
         'authentik-oauth2-application',
+        'authentik-proxy-application',
         'github-repository',
         'harbor-local-registry',
         'harbor-proxy-registry',
