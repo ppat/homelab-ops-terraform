@@ -15,6 +15,18 @@ data "authentik_certificate_key_pair" "signing_key_pair" {
   name = var.signing_key
 }
 
+data "authentik_group" "homelab_admins" {
+  name = "homelab-admins"
+}
+
+data "authentik_group" "homelab_users" {
+  name = "homelab-users"
+}
+
+data "authentik_group" "media_admins" {
+  name = "media-admins"
+}
+
 data "authentik_property_mapping_provider_scope" "default" {
   managed_list = [
     "goauthentik.io/providers/oauth2/scope-email",

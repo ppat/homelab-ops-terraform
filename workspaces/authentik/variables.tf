@@ -12,6 +12,10 @@ variable "signing_key" {
   default = "jwt-signing" # "authentik Self-signed Certificate"
 }
 
+variable "grafana_client_id" {
+  type = string
+}
+
 variable "harbor_clientid" {
   type = string
 }
