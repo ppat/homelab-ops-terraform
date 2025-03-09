@@ -20,8 +20,8 @@
     "github>ppat/renovate-presets",
     "github>ppat/renovate-presets:dev-tools",
     "github>ppat/renovate-presets:github-actions",
-    "github>ppat/coder//.github/renovate/template-terraform-provider",
-    "github>ppat/coder//.github/renovate/exceptions"
+    "github>ppat/homelab-ops-terraform//.github/renovate/template-terraform-provider",
+    "github>ppat/homelab-ops-terraform//.github/renovate/exceptions"
   ],
   "internalChecksFilter": "strict",
   "prConcurrentLimit": 20,
