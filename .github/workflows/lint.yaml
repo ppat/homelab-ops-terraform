@@ -23,6 +23,7 @@ jobs:
       shellscripts_all_changed_files: ${{ steps.changed-files-yaml.outputs.shellscripts_all_changed_files}}
       terraform_any_changed: ${{ steps.changed-files-yaml.outputs.terraform_any_changed }}
       terraform_all_changed_files: ${{ steps.changed-files-yaml.outputs.terraform_all_changed_files}}
+      terraform_dirs: ${{ steps.determine-tf-dirs.outputs.dirs }}
       yaml_any_changed: ${{ steps.changed-files-yaml.outputs.yaml_any_changed }}
       yaml_all_changed_files: ${{ steps.changed-files-yaml.outputs.yaml_all_changed_files}}
     runs-on: ubuntu-24.04
@@ -46,12 +47,50 @@ jobs:
           shellscripts:
           - '**.sh'
           terraform:
+          - modules/**
+          - workspaces/**
           - '**.tf'
           - '**/.terraform-version'
           - '**/.terraform.lock.hcl'
           - '.tflint.hcl'
           yaml:
           - '**.yaml'
+
+    - name: Determine Terraform directories to validate
+      id: determine-tf-dirs
+      # yamllint disable-line rule:indentation
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          # For workflow_dispatch, validate all terraform directories
+          TF_DIRS=$(find workspaces modules -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')
+        elif [[ "${{ steps.changed-files-yaml.outputs.terraform_any_changed }}" == "true" ]]; then
+          # For pull requests, check which files changed
+          CHANGED_FILES="${{ steps.changed-files-yaml.outputs.terraform_all_changed_files }}"
+          MODULE_CHANGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '^modules/' || true)
+          WORKSPACE_CHANGES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '^workspaces/' || true)
+
+          # If modules changed, need to validate all workspaces and the changed modules
+          if [[ -n "$MODULE_CHANGES" ]]; then
+            # Get all workspaces
+            WORKSPACES=$(find workspaces -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort)
+
+            # Get changed module directories
+            CHANGED_MODULES=$(echo "$MODULE_CHANGES" | grep -o 'modules/[^/]*' | sort | uniq)
+
+            # Combine workspaces and changed modules
+            TF_DIRS=$(echo "$WORKSPACES" $'\n' "$CHANGED_MODULES" | sort | uniq | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+            echo "Module changes detected, validating all workspaces and changed modules"
+          else
+            # Otherwise only validate affected workspaces
+            TF_DIRS=$(echo "$WORKSPACE_CHANGES" | grep -o 'workspaces/[^/]*' | sort | uniq | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "Workspace-specific changes detected, validating only affected workspaces"
+          fi
+        else
+          echo "TF_DIRS=[]" >> $GITHUB_OUTPUT
+          echo "No Terraform changes detected"
+        fi
+        echo "dirs=$TF_DIRS" >> $GITHUB_OUTPUT
 
   commit-messages:
     if: ${{ github.event_name == 'pull_request' }}
@@ -97,6 +136,7 @@ jobs:
     uses: ppat/github-workflows/.github/workflows/lint-terraform.yaml@main
     with:
       git_ref: ${{ github.head_ref || github.ref }}
+      tf_dirs: ${{ needs.detect-changes.outputs.terraform_dirs }}
 
   yaml:
     needs: [detect-changes]
