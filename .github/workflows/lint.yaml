@@ -47,6 +47,8 @@ jobs:
           shellscripts:
           - '**.sh'
           terraform:
+          - modules/**
+          - workspaces/**
           - '**.tf'
           - '**/.terraform-version'
           - '**/.terraform.lock.hcl'
