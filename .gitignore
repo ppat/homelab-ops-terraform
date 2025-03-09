@@ -37,4 +37,5 @@ override.tf.json
 terraform.rc
 
 .bitwarden/
+# only commit lock files for workspaces, not modules
 modules/**/.terraform.lock.hcl
