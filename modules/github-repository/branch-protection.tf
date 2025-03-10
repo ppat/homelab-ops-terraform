@@ -4,7 +4,7 @@ resource "github_branch_protection" "main" {
   allows_deletions                = false
   allows_force_pushes             = false
   enforce_admins                  = true
-  force_push_bypassers            = []
+  force_push_bypassers            = var.force_push_bypassers
   require_conversation_resolution = false
   required_linear_history         = true
   require_signed_commits          = true

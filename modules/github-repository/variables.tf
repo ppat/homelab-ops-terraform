@@ -8,6 +8,11 @@ variable "actions_allowed" {
   default = []
 }
 
+variable "force_push_bypassers" {
+  type    = list(string)
+  default = []
+}
+
 variable "homepage_url" {
   type    = string
   default = ""
