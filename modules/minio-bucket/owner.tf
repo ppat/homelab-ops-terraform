@@ -33,7 +33,7 @@ resource "minio_iam_user_policy_attachment" "owner_policy" {
 
 resource "bitwarden_secret" "bucket_owner_accesskey" {
   depends_on = [minio_iam_user.owner]
-  key        = "bucket_${replace(var.bucket_name, "-", "_")}_accesskey"
+  key        = "bucket_${replace(var.bucket_name, "/[^a-zA-Z0-9]/", "")}_accesskey"
   value      = var.owner_username
   project_id = var.bitwarden_project_id
   note       = "${var.bucket_name} bucket's accesskey"
@@ -41,7 +41,7 @@ resource "bitwarden_secret" "bucket_owner_accesskey" {
 
 resource "bitwarden_secret" "bucket_owner_secretkey" {
   depends_on = [minio_iam_user.owner]
-  key        = "bucket_${replace(var.bucket_name, "-", "_")}_secretkey"
+  key        = "bucket_${replace(var.bucket_name, "/[^a-zA-Z0-9]/", "")}_secretkey"
   value      = minio_iam_user.owner.secret
   project_id = var.bitwarden_project_id
   note       = "${var.bucket_name} bucket's secretkey"
