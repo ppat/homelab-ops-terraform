@@ -2,11 +2,11 @@ resource "authentik_property_mapping_provider_scope" "minio" {
   name       = "OIDC-Scope-minio"
   scope_name = "minio"
   expression = <<EOF
-if ak_is_group_member(request.user, name="homelab-admins"):
+if ak_is_group_member(request.user, name="${data.authentik_group.homelab_admins.name}"):
   return {
       "policy": "consoleAdmin",
 }
-elif ak_is_group_member(request.user, name="homelab-users"):
+elif ak_is_group_member(request.user, name="${data.authentik_group.homelab_users.name}"):
   return {
       "policy": ["readonly", "diagnostics"]
 }

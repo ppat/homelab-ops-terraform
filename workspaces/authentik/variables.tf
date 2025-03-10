@@ -18,6 +18,16 @@ variable "clientid_harbor" {
   sensitive = true
 }
 
+variable "clientid_kuberneteshomelab" {
+  type      = string
+  sensitive = true
+}
+
+variable "clientid_kubernetesnas" {
+  type      = string
+  sensitive = true
+}
+
 variable "clientid_miniohomelab" {
   type      = string
   sensitive = true
