@@ -19,7 +19,7 @@ variable "flows" {
 }
 
 variable "groups" {
-  description = "Groups to be bound to this Authentik application"
+  description = "Groups to be bound to this application"
   type        = list(string)
 }
 
