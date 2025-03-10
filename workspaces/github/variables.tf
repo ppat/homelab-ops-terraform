@@ -7,8 +7,3 @@ variable "homelab_bot_app_private_key" {
   type      = string
   sensitive = true
 }
-
-variable "snyk_token" {
-  type      = string
-  sensitive = true
-}
