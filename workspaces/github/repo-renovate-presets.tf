@@ -6,6 +6,7 @@ module "repo_renovate_presets" {
     visibility  = "public"
   }
   actions_allowed = [
+    "jdx/mise-action@*",
     "tj-actions/changed-files@*"
   ]
 }
