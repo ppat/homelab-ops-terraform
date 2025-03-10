@@ -38,6 +38,11 @@ variable "clientid_minionas" {
   sensitive = true
 }
 
+variable "clientid_openwebui" {
+  type      = string
+  sensitive = true
+}
+
 variable "dns_zone" {
   type = string
 }
