@@ -75,19 +75,19 @@ jobs:
             WORKSPACES=$(find workspaces -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort)
 
             # Get changed module directories
-            CHANGED_MODULES=$(echo "$MODULE_CHANGES" | grep -o 'modules/[^/]*' | sort | uniq)
+            CHANGED_MODULES=$(echo "$MODULE_CHANGES" | grep -o 'modules/[^/]*' | sort | uniq | tr -d ' ')
 
             # Combine workspaces and changed modules
-            TF_DIRS=$(echo "$WORKSPACES" $'\n' "$CHANGED_MODULES" | sort | uniq | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            TF_DIRS=$(echo "$WORKSPACES" $'\n' "$CHANGED_MODULES" | sort | uniq | tr -d ' ' | jq -R -s -c 'split("\n") | map(select(length > 0))')
 
             echo "Module changes detected, validating all workspaces and changed modules"
           else
             # Otherwise only validate affected workspaces
-            TF_DIRS=$(echo "$WORKSPACE_CHANGES" | grep -o 'workspaces/[^/]*' | sort | uniq | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            TF_DIRS=$(echo "$WORKSPACE_CHANGES" | grep -o 'workspaces/[^/]*' | sort | uniq | tr -d ' ' | jq -R -s -c 'split("\n") | map(select(length > 0))')
             echo "Workspace-specific changes detected, validating only affected workspaces"
           fi
         else
-          echo "TF_DIRS=[]" >> $GITHUB_OUTPUT
+          TF_DIRS="[]"
           echo "No Terraform changes detected"
         fi
         echo "dirs=$TF_DIRS" >> $GITHUB_OUTPUT
