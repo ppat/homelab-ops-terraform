@@ -1,12 +1,15 @@
 resource "github_actions_repository_permissions" "actions_permissions" {
   repository      = github_repository.repository.name
-  allowed_actions = "selected"
+  allowed_actions = var.repository.visibility == "public" ? "selected" : "all"
   enabled         = true
 
-  allowed_actions_config {
-    github_owned_allowed = true
-    patterns_allowed     = var.actions_allowed
-    verified_allowed     = true
+  dynamic "allowed_actions_config" {
+    for_each = var.repository.visibility == "public" ? [1] : []
+    content {
+      github_owned_allowed = true
+      patterns_allowed     = var.actions_allowed
+      verified_allowed     = true
+    }
   }
 }
 
