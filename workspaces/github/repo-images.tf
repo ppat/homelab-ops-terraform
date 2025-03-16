@@ -6,7 +6,9 @@ module "repo_images" {
     visibility  = "public"
   }
   actions_allowed = [
-    "aquaproj/update-checksum-workflow@*",
+    "aquaproj/aqua-installer@*",
+    "aquaproj/update-checksum-action@*",
+    "aquaproj/update-checksum-workflow/.github/workflows/update-checksum.yaml@*",
     "docker/build-push-action@*",
     "docker/setup-buildx-action@*",
     "docker/login-action@*",
@@ -15,20 +17,22 @@ module "repo_images" {
     "hadolint/hadolint-action@*",
     "jdx/mise-action@*",
     "peter-evans/dockerhub-description@*",
+    "suzuki-shunsuke/github-token-action@*",
     "tailscale/github-action@*",
+    "tibdex/github-app-token@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
+    # TODO: re-enable and fix
+    # CONTAINER_REGISTRY          = "harbor.nas.${var.dns_zone}"
+    # CONTAINER_REGISTRY_USERNAME = var.harbor_username
+    # CONTAINER_REGISTRY_PASSWORD = var.harbor_password
+    DOCKERHUB_USERNAME          = var.dockerhub_username
+    DOCKERHUB_TOKEN             = var.dockerhub_token
     HOMELAB_BOT_APP_ID          = var.homelab_bot_app_id
     HOMELAB_BOT_APP_PRIVATE_KEY = file(var.homelab_bot_app_private_key)
-    # TODO: add these
-    # CONTAINER_REGISTRY
-    # CONTAINER_REGISTRY_PASSWORD
-    # CONTAINER_REGISTRY_USERNAME
-    # DOCKERHUB_TOKEN
-    # DOCKERHUB_USERNAME
-    # TAILSCALE_OAUTH_CLIENT_ID
-    # TAILSCALE_OAUTH_SECRET
+    TAILSCALE_OAUTH_CLIENT_ID   = var.clientid_tailscale
+    TAILSCALE_OAUTH_SECRET      = var.clientsecret_tailscale
   }
   homepage_url = "https://hub.docker.com/u/ppatlabs"
   topics = [

@@ -8,6 +8,12 @@ variable "actions_allowed" {
   default = []
 }
 
+variable "environment_secrets" {
+  description = "Map of environment names to their secrets (secret_name -> secret_value)"
+  type        = map(map(string))
+  default     = {}
+}
+
 variable "force_push_bypassers" {
   type    = list(string)
   default = []

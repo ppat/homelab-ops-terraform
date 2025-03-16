@@ -9,13 +9,11 @@ module "repo_homelab_ops_ansible" {
     "jdx/mise-action@*",
     "tj-actions/changed-files@*"
   ]
-  actions_secrets = {
-    HOMELAB_BOT_APP_ID          = var.homelab_bot_app_id
-    HOMELAB_BOT_APP_PRIVATE_KEY = file(var.homelab_bot_app_private_key)
-    # TODO: add these
-    # ANSIBLE_GALAXY_API_TOKEN
-    # FLUX_REPO_READER_SSH_KEY
-    # GH_RELEASE_TOKEN
+  environment_secrets = {
+    release = {
+      ANSIBLE_GALAXY_API_TOKEN = var.ansible_galaxy_api_token
+      GH_RELEASE_TOKEN         = var.gh_release_token
+    }
   }
   topics = [
     "ansible",
