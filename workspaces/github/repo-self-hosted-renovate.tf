@@ -5,10 +5,6 @@ module "repo_self_hosted_renovate" {
     description = ""
     visibility  = "private"
   }
-  actions_allowed = [
-    "renovatebot/github-action@*",
-    "tj-actions/changed-files@*"
-  ]
   environment_secrets = {
     renovate = {
       DOCKERHUB_USERNAME       = var.dockerhub_username
