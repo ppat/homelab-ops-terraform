@@ -12,10 +12,7 @@ module "repo_homelab_ops_terraform" {
     "jdx/mise-action@*",
     "tj-actions/changed-files@*"
   ]
-  actions_secrets = {
-    HOMELAB_BOT_APP_ID          = var.homelab_bot_app_id
-    HOMELAB_BOT_APP_PRIVATE_KEY = file(var.homelab_bot_app_private_key)
-  }
+  # force_push_bypassers = [data.github_user.current.node_id]
   #   required_status_checks = [
   #     "Snyk Security Check",
   #     "terraform-fmt",
