@@ -9,7 +9,12 @@ skip-check:
 - CKV_AWS_.*
 - CKV_AZURE_.*
 - CKV_GCP_.*
-- CKV_GIT_1   # Ensure GitHub repository is Private
-- CKV_GIT_4   # Ensure GitHub Actions secrets are encrypted
-- CKV_GIT_5   # GitHub pull requests should require at least 2 approvals
+# Ensure GitHub repository is Private (we have public repos)
+- CKV_GIT_1
+# Ensure GitHub repository has vulnerability alerts enabled (cannot enable vuln. alerts on non-enterprise private repos)
+- CKV_GIT_3
+# Ensure GitHub Actions secrets are encrypted
+- CKV_GIT_4
+# GitHub pull requests should require at least 2 approvals (its just me, bro)
+- CKV_GIT_5
 - CKV_DOCKER_.*

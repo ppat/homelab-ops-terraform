@@ -18,12 +18,15 @@ resource "github_repository" "repository" {
   delete_branch_on_merge = true
   topics                 = var.topics
 
-  security_and_analysis {
-    secret_scanning {
-      status = var.repository.visibility == "public" ? "enabled" : "disabled"
-    }
-    secret_scanning_push_protection {
-      status = var.repository.visibility == "public" ? "enabled" : "disabled"
+  dynamic "security_and_analysis" {
+    for_each = var.repository.visibility == "public" ? [1] : []
+    content {
+      secret_scanning {
+        status = "enabled"
+      }
+      secret_scanning_push_protection {
+        status = "enabled"
+      }
     }
   }
 }

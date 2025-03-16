@@ -54,3 +54,13 @@ variable "clientsecret_tailscale" {
   type      = string
   sensitive = true
 }
+
+variable "renovate_app_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "renovate_app_private_key" {
+  type      = string
+  sensitive = true
+}
