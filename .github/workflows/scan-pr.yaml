@@ -16,39 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  detect-changes:
-    runs-on: ubuntu-24.04
-    outputs:
-      terraform: ${{ steps.changed-files.outputs.terraform_any_changed }}
-      terraform_files: ${{ steps.changed-files.outputs.terraform_all_changed_files }}
-      modules_changed: ${{ steps.filter-paths.outputs.modules_changed }}
-      workspaces_changed: ${{ steps.filter-paths.outputs.workspaces_changed }}
-    steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-
-    - name: Get changed files
-      id: changed-files
-      uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32 # v46
-      with:
-        files_yaml: |
-          terraform:
-          - '**.tf'
-          - '**/.terraform-version'
-          - '**/.terraform.lock.hcl'
-
-    - name: Filter terraform paths
-      id: filter-paths
-      if: steps.changed-files.outputs.terraform_any_changed == 'true'
-      run: |
-        modules=$(echo '${{ steps.changed-files.outputs.terraform_all_changed_files }}' | tr ' ' '\n' | grep '^modules/' || echo '')
-        workspaces=$(echo '${{ steps.changed-files.outputs.terraform_all_changed_files }}' | tr ' ' '\n' | grep '^workspaces/' || echo '')
-
-        echo "modules_changed=$([ ! -z "$modules" ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
-        echo "workspaces_changed=$([ ! -z "$workspaces" ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
-
   trivy-scan:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.terraform == 'true'
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -64,8 +32,6 @@ jobs:
         trivy-config: trivy.yaml
 
   checkov-scan:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.terraform == 'true'
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
