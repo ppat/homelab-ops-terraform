@@ -35,6 +35,7 @@ jobs:
           - '**.tf'
           - '**/.terraform-version'
           - '**/.terraform.lock.hcl'
+          - '.github/workflows/scan-pr.yaml'
 
     - name: Filter terraform paths
       id: filter-paths
