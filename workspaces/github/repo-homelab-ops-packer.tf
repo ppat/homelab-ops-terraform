@@ -20,5 +20,11 @@ module "repo_homelab_ops_packer" {
       # TAILSCALE_OAUTH_CLIENT_ID
       # TAILSCALE_OAUTH_SECRET
     }
+    renovate = {
+      RENOVATE_APP_ID          = var.renovate_app_id
+      RENOVATE_APP_PRIVATE_KEY = file(var.renovate_app_private_key)
+      DOCKERHUB_USERNAME       = var.dockerhub_username
+      DOCKERHUB_TOKEN          = var.dockerhub_token
+    }
   }
 }

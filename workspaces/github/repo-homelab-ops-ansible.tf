@@ -14,6 +14,12 @@ module "repo_homelab_ops_ansible" {
       ANSIBLE_GALAXY_API_TOKEN = var.ansible_galaxy_api_token
       GH_RELEASE_TOKEN         = var.gh_release_token
     }
+    renovate = {
+      RENOVATE_APP_ID          = var.renovate_app_id
+      RENOVATE_APP_PRIVATE_KEY = file(var.renovate_app_private_key)
+      DOCKERHUB_USERNAME       = var.dockerhub_username
+      DOCKERHUB_TOKEN          = var.dockerhub_token
+    }
   }
   topics = [
     "ansible",

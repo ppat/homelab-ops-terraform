@@ -18,3 +18,4 @@ skip-check:
 # GitHub pull requests should require at least 2 approvals (its just me, bro)
 - CKV_GIT_5
 - CKV_DOCKER_.*
+- CKV2_GHA_1

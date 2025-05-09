@@ -34,6 +34,14 @@ module "repo_images" {
     TAILSCALE_OAUTH_CLIENT_ID   = var.clientid_tailscale
     TAILSCALE_OAUTH_SECRET      = var.clientsecret_tailscale
   }
+  environment_secrets = {
+    renovate = {
+      DOCKERHUB_USERNAME       = var.dockerhub_username
+      DOCKERHUB_TOKEN          = var.dockerhub_token
+      RENOVATE_APP_ID          = var.renovate_app_id
+      RENOVATE_APP_PRIVATE_KEY = file(var.renovate_app_private_key)
+    }
+  }
   homepage_url = "https://hub.docker.com/u/ppatlabs"
   topics = [
     "amd64",
