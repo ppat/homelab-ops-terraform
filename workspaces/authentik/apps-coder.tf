@@ -5,8 +5,8 @@ module "oauth2_coder" {
   client_id            = var.clientid_coder
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  # icon_url             = "https://s3.homelab.${var.dns_zone}/homelab-authentik-media/media/public/application-icons/coder.svg"
-  launch_url     = "https://coder.homelab.${var.dns_zone}"
+  # icon_url             = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/coder.svg"
+  launch_url     = "https://coder.homelab.${data.bitwarden_secret.dns_zone.value}"
   signing_key_id = data.authentik_certificate_key_pair.signing_key_pair.id
 
   property_mappings = concat(
@@ -15,6 +15,6 @@ module "oauth2_coder" {
   )
   redirect_uris = [{
     matching_mode = "strict"
-    url           = "https://coder.homelab.${var.dns_zone}/api/v2/users/oidc/callback"
+    url           = "https://coder.homelab.${data.bitwarden_secret.dns_zone.value}/api/v2/users/oidc/callback"
   }]
 }

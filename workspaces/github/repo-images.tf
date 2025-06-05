@@ -23,23 +23,22 @@ module "repo_images" {
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
-    # TODO: re-enable and fix
-    # CONTAINER_REGISTRY          = "harbor.nas.${var.dns_zone}"
-    # CONTAINER_REGISTRY_USERNAME = var.harbor_username
-    # CONTAINER_REGISTRY_PASSWORD = var.harbor_password
-    DOCKERHUB_USERNAME          = var.dockerhub_username
-    DOCKERHUB_TOKEN             = var.dockerhub_token
-    HOMELAB_BOT_APP_ID          = var.homelab_bot_app_id
-    HOMELAB_BOT_APP_PRIVATE_KEY = file(var.homelab_bot_app_private_key)
-    TAILSCALE_OAUTH_CLIENT_ID   = var.clientid_tailscale
-    TAILSCALE_OAUTH_SECRET      = var.clientsecret_tailscale
+    CONTAINER_REGISTRY          = "harbor.nas.${data.bitwarden_secret.dns_zone.value}"
+    CONTAINER_REGISTRY_USERNAME = data.bitwarden_secret.harbor_robot_username.value
+    CONTAINER_REGISTRY_PASSWORD = data.bitwarden_secret.harbor_robot_password.value
+    DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
+    DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value
+    HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
+    HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
+    TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
+    TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
   }
   environment_secrets = {
     renovate = {
-      DOCKERHUB_USERNAME       = var.dockerhub_username
-      DOCKERHUB_TOKEN          = var.dockerhub_token
-      RENOVATE_APP_ID          = var.renovate_app_id
-      RENOVATE_APP_PRIVATE_KEY = file(var.renovate_app_private_key)
+      DOCKERHUB_USERNAME       = data.bitwarden_secret.dockerhub_username.value
+      DOCKERHUB_TOKEN          = data.bitwarden_secret.dockerhub_token.value
+      RENOVATE_APP_ID          = data.bitwarden_secret.renovate_app_id.value
+      RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
     }
   }
   homepage_url = "https://hub.docker.com/u/ppatlabs"

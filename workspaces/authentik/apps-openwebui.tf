@@ -5,7 +5,7 @@ module "oauth2_openwebui" {
   client_id            = var.clientid_openwebui
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  launch_url           = "https://openwebui.homelab.${var.dns_zone}"
+  launch_url           = "https://openwebui.homelab.${data.bitwarden_secret.dns_zone.value}"
   signing_key_id       = data.authentik_certificate_key_pair.signing_key_pair.id
 
   property_mappings = concat(
@@ -13,6 +13,6 @@ module "oauth2_openwebui" {
   )
   redirect_uris = [{
     matching_mode = "strict"
-    url           = "https://openwebui.homelab.${var.dns_zone}/oauth/oidc/callback"
+    url           = "https://openwebui.homelab.${data.bitwarden_secret.dns_zone.value}/oauth/oidc/callback"
   }]
 }

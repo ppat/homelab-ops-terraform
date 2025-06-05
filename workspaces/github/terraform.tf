@@ -12,10 +12,20 @@ terraform {
   }
 
   required_providers {
+    bitwarden = {
+      source  = "maxlaverse/bitwarden"
+      version = "0.13.6"
+    }
     github = {
       source  = "integrations/github"
       version = "6.6.0"
     }
+  }
+}
+
+provider "bitwarden" {
+  experimental {
+    embedded_client = true
   }
 }
 

@@ -5,8 +5,8 @@ module "oauth2_harbor" {
   client_id            = var.clientid_harbor
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  icon_url             = "https://s3.homelab.${var.dns_zone}/homelab-authentik-media/media/public/application-icons/harbor.svg"
-  launch_url           = "https://harbor.nas.${var.dns_zone}"
+  icon_url             = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/harbor.svg"
+  launch_url           = "https://harbor.nas.${data.bitwarden_secret.dns_zone.value}"
   signing_key_id       = data.authentik_certificate_key_pair.signing_key_pair.id
 
   property_mappings = concat(
@@ -15,6 +15,6 @@ module "oauth2_harbor" {
   )
   redirect_uris = [{
     matching_mode = "strict"
-    url           = "https://harbor.nas.${var.dns_zone}/c/oidc/callback"
+    url           = "https://harbor.nas.${data.bitwarden_secret.dns_zone.value}/c/oidc/callback"
   }]
 }

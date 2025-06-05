@@ -21,8 +21,8 @@ module "oauth2_minio_nas" {
   client_id            = var.clientid_minionas
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  icon_url             = "https://s3.homelab.${var.dns_zone}/homelab-authentik-media/media/public/application-icons/minio_dKwoWUN.svg"
-  launch_url           = "https://minio-console.nas.${var.dns_zone}"
+  icon_url             = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/minio_dKwoWUN.svg"
+  launch_url           = "https://minio-console.nas.${data.bitwarden_secret.dns_zone.value}"
   signing_key_id       = data.authentik_certificate_key_pair.signing_key_pair.id
 
   property_mappings = concat(
@@ -31,7 +31,7 @@ module "oauth2_minio_nas" {
   )
   redirect_uris = [{
     matching_mode = "strict"
-    url           = "https://minio-console.nas.${var.dns_zone}/oauth_callback"
+    url           = "https://minio-console.nas.${data.bitwarden_secret.dns_zone.value}/oauth_callback"
   }]
 }
 
@@ -42,8 +42,8 @@ module "oauth2_minio_homelab" {
   client_id            = var.clientid_miniohomelab
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  icon_url             = "https://s3.homelab.${var.dns_zone}/homelab-authentik-media/media/public/application-icons/minio.svg"
-  launch_url           = "https://minio-console.homelab.${var.dns_zone}"
+  icon_url             = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/minio.svg"
+  launch_url           = "https://minio-console.homelab.${data.bitwarden_secret.dns_zone.value}"
   signing_key_id       = data.authentik_certificate_key_pair.signing_key_pair.id
 
   property_mappings = concat(
@@ -52,6 +52,6 @@ module "oauth2_minio_homelab" {
   )
   redirect_uris = [{
     matching_mode = "strict"
-    url           = "https://minio-console.homelab.${var.dns_zone}/oauth_callback"
+    url           = "https://minio-console.homelab.${data.bitwarden_secret.dns_zone.value}/oauth_callback"
   }]
 }

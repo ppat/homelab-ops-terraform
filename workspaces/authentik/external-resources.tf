@@ -12,7 +12,7 @@ data "authentik_flow" "default_provider_invalidation_flow" {
 }
 
 data "authentik_certificate_key_pair" "signing_key_pair" {
-  name = var.signing_key
+  name = "jwt-signing"
 }
 
 data "authentik_group" "homelab_admins" {

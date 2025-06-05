@@ -29,5 +29,4 @@ provider "bitwarden" {
 }
 
 provider "authentik" {
-  url = "https://auth.homelab.${var.dns_zone}/"
 }
