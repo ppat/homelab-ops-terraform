@@ -42,12 +42,3 @@ variable "clientid_openwebui" {
   type      = string
   sensitive = true
 }
-
-variable "dns_zone" {
-  type = string
-}
-
-variable "signing_key" {
-  type    = string
-  default = "jwt-signing"
-}

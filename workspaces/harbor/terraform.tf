@@ -11,10 +11,10 @@ terraform {
     force_path_style            = true
   }
   required_providers {
-    # bitwarden = {
-    #   source  = "maxlaverse/bitwarden"
-    #   version = "0.13.0"
-    # }
+    bitwarden = {
+      source  = "maxlaverse/bitwarden"
+      version = "0.13.6"
+    }
     harbor = {
       source  = "goharbor/harbor"
       version = "3.10.21"
@@ -22,11 +22,11 @@ terraform {
   }
 }
 
-provider "harbor" {
+provider "bitwarden" {
+  experimental {
+    embedded_client = true
+  }
 }
 
-# provider "bitwarden" {
-#   experimental {
-#     embedded_client = true
-#   }
-# }
+provider "harbor" {
+}

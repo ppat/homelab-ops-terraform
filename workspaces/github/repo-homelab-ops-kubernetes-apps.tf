@@ -20,14 +20,14 @@ module "repo_homelab_ops_kubernetes_apps" {
   ]
   environment_secrets = {
     release = {
-      HOMELAB_BOT_APP_ID          = var.homelab_bot_app_id
-      HOMELAB_BOT_APP_PRIVATE_KEY = file(var.homelab_bot_app_private_key)
+      HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
+      HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
     }
     renovate = {
-      RENOVATE_APP_ID          = var.renovate_app_id
-      RENOVATE_APP_PRIVATE_KEY = file(var.renovate_app_private_key)
-      DOCKERHUB_USERNAME       = var.dockerhub_username
-      DOCKERHUB_TOKEN          = var.dockerhub_token
+      DOCKERHUB_USERNAME       = data.bitwarden_secret.dockerhub_username.value
+      DOCKERHUB_TOKEN          = data.bitwarden_secret.dockerhub_token.value
+      RENOVATE_APP_ID          = data.bitwarden_secret.renovate_app_id.value
+      RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
     }
   }
 }

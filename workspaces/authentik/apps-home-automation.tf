@@ -1,10 +1,10 @@
 module "proxy_home_assistant" {
   source          = "../../modules/authentik-proxy-application"
   name            = "home-assistant"
-  application_url = "https://home-assistant.homelab.${var.dns_zone}"
+  application_url = "https://home-assistant.homelab.${data.bitwarden_secret.dns_zone.value}"
   flows           = local.default_flows
   groups          = [data.authentik_group.homelab_users.id]
-  launch_url      = "https://home-assistant.homelab.${var.dns_zone}"
+  launch_url      = "https://home-assistant.homelab.${data.bitwarden_secret.dns_zone.value}"
 
   property_mappings = concat(
     data.authentik_property_mapping_provider_scope.default.ids,

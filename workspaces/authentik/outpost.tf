@@ -9,7 +9,7 @@ resource "authentik_outpost" "embedded_outpost" {
   service_connection = authentik_service_connection_kubernetes.local.id
 
   config = jsonencode({
-    authentik_host                 = "https://auth.homelab.${var.dns_zone}"
+    authentik_host                 = "https://auth.homelab.${data.bitwarden_secret.dns_zone.value}"
     authentik_host_insecure        = false
     authentik_host_browser         = ""
     container_image                = null

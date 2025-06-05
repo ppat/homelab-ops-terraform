@@ -18,25 +18,24 @@ module "repo_coder" {
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
-    HOMELAB_BOT_APP_ID          = var.homelab_bot_app_id
-    HOMELAB_BOT_APP_PRIVATE_KEY = file(var.homelab_bot_app_private_key)
-    # TODO: add these
-    # CODER_EMAIL
-    # CODER_PASSWORD
-    # CODER_URL
-    # CONTAINER_REGISTRY
-    # CONTAINER_REGISTRY_PASSWORD
-    # CONTAINER_REGISTRY_USERNAME
-    # GH_RELEASES_TOKEN
-    # TAILSCALE_OAUTH_CLIENT_ID
-    # TAILSCALE_OAUTH_SECRET
+    CODER_EMAIL                 = data.bitwarden_secret.coder_ci_email.value
+    CODER_PASSWORD              = data.bitwarden_secret.coder_ci_password.value
+    CODER_URL                   = "https://coder.homelab.${data.bitwarden_secret.dns_zone.value}"
+    CONTAINER_REGISTRY          = "harbor.nas.${data.bitwarden_secret.dns_zone.value}"
+    CONTAINER_REGISTRY_USERNAME = data.bitwarden_secret.harbor_robot_username.value
+    CONTAINER_REGISTRY_PASSWORD = data.bitwarden_secret.harbor_robot_password.value
+    GH_RELEASES_TOKEN           = data.bitwarden_secret.github_release_token.value
+    HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
+    HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
+    TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
+    TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
   }
   environment_secrets = {
     renovate = {
-      DOCKERHUB_USERNAME       = var.dockerhub_username
-      DOCKERHUB_TOKEN          = var.dockerhub_token
-      RENOVATE_APP_ID          = var.renovate_app_id
-      RENOVATE_APP_PRIVATE_KEY = file(var.renovate_app_private_key)
+      DOCKERHUB_USERNAME       = data.bitwarden_secret.dockerhub_username.value
+      DOCKERHUB_TOKEN          = data.bitwarden_secret.dockerhub_token.value
+      RENOVATE_APP_ID          = data.bitwarden_secret.renovate_app_id.value
+      RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
     }
   }
   topics = [
