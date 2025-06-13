@@ -37,7 +37,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
     - name: Run Checkov
-      uses: bridgecrewio/checkov-action@71131aa022fbccec1b193d5fd5094b3af683dc12
+      uses: bridgecrewio/checkov-action@c67e641b6d0bb493da1ffd1a2d1b1c444e93e5af
       with:
         config_file: .checkov.yaml
         output_format: github_failed_only
