@@ -6,12 +6,8 @@ module "repo_homelab_ops_kubernetes_clusters" {
     visibility  = "public"
   }
   actions_allowed = [
-    "allenporter/flux-local/action/diff@*",
+    "docker://ghcr.io/allenporter/flux-local:*",
     "fluxcd/flux2/action@*",
-    "fluxcd/pkg/actions/kubeconform@*",
-    "fluxcd/pkg/actions/kubectl@*",
-    "fluxcd/pkg/actions/kustomize@*",
-    "googleapis/release-please-action@*",
     "helm/kind-action@*",
     "jdx/mise-action@*",
     "kyverno/action-install-chainsaw@*",
