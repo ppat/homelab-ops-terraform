@@ -22,6 +22,8 @@ jobs:
       actions_all_changed_files: ${{ steps.changed-files-yaml.outputs.actions_all_changed_files}}
       renovate_any_changed: ${{ steps.changed-files-yaml.outputs.renovate_any_changed }}
       renovate_all_changed_files: ${{ steps.changed-files-yaml.outputs.renovate_all_changed_files}}
+      markdown_any_changed: ${{ steps.changed-files-yaml.outputs.markdown_any_changed }}
+      markdown_all_changed_files: ${{ steps.changed-files-yaml.outputs.markdown_all_changed_files}}
       shellscripts_any_changed: ${{ steps.changed-files-yaml.outputs.shellscripts_any_changed }}
       shellscripts_all_changed_files: ${{ steps.changed-files-yaml.outputs.shellscripts_all_changed_files}}
       terraform_any_changed: ${{ steps.changed-files-yaml.outputs.terraform_any_changed }}
