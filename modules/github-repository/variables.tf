@@ -32,6 +32,11 @@ variable "repository" {
   })
 }
 
+variable "require_signed_commits" {
+  type    = bool
+  default = true
+}
+
 variable "required_status_checks" {
   type    = list(string)
   default = []
