@@ -7,7 +7,7 @@ resource "github_branch_protection" "main" {
   force_push_bypassers            = var.force_push_bypassers
   require_conversation_resolution = false
   required_linear_history         = true
-  require_signed_commits          = true
+  require_signed_commits          = var.require_signed_commits
 
   required_status_checks {
     strict   = true
