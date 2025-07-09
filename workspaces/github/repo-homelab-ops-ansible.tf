@@ -21,6 +21,7 @@ module "repo_homelab_ops_ansible" {
       RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
     }
   }
+  require_signed_commits = false
   topics = [
     "ansible",
     "ansible-collection",

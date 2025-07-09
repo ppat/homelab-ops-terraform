@@ -27,8 +27,8 @@ module "repo_coder" {
     GH_RELEASES_TOKEN           = data.bitwarden_secret.github_release_token.value
     HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
     HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
-    TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
-    TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
+    # TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
+    # TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
   }
   environment_secrets = {
     renovate = {
@@ -38,6 +38,7 @@ module "repo_coder" {
       RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
     }
   }
+  require_signed_commits = false
   topics = [
     "cde",
     "cloud-development-environment",

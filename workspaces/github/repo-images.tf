@@ -30,8 +30,8 @@ module "repo_images" {
     DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value
     HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
     HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
-    TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
-    TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
+    # TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
+    # TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
   }
   environment_secrets = {
     renovate = {

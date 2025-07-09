@@ -50,10 +50,12 @@ data "bitwarden_secret" "renovate_app_private_key" {
   id = "04fb2359-e123-4196-a0a4-b2f20171d873"
 }
 
+# tflint-ignore: terraform_unused_declarations
 data "bitwarden_secret" "tailscale_clientid" {
   id = "c54986f2-c717-42ef-996f-b22b0167a097"
 }
 
+# tflint-ignore: terraform_unused_declarations
 data "bitwarden_secret" "tailscale_client_secret" {
   id = "b3d46339-8034-439e-9f90-b22d005fc6a8"
 }
