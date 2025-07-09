@@ -19,3 +19,6 @@ skip-check:
 - CKV_GIT_5
 - CKV_DOCKER_.*
 - CKV2_GHA_1
+# Ensure GitHub branch protection rules requires signed commits - few repos using semantic-release can't force
+# signed commits, we'll migrate off of semantic-release to release-please.
+- CKV_GIT_6

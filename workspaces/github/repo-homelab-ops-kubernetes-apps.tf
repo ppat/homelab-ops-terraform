@@ -6,7 +6,7 @@ module "repo_homelab_ops_kubernetes_apps" {
     visibility  = "public"
   }
   actions_allowed = [
-    "allenporter/flux-local/action/diff@*",
+    "docker://ghcr.io/allenporter/flux-local:*",
     "fluxcd/flux2/action@*",
     "fluxcd/pkg/actions/kubectl@*",
     "googleapis/release-please-action@*",
