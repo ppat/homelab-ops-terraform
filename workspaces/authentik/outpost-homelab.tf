@@ -35,7 +35,6 @@ resource "authentik_outpost" "embedded_outpost" {
     module.proxy_pihole.proxy_provider.id,
     module.proxy_prometheus.proxy_provider.id,
     module.proxy_traefik_homelab.proxy_provider.id,
-    module.proxy_traefik_nas.proxy_provider.id,
 
     module.proxy_lidarr.proxy_provider.id,
     module.proxy_prowlarr.proxy_provider.id,
