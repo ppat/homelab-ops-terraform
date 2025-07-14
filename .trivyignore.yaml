@@ -4,3 +4,6 @@ vulnerabilities: []
 misconfigurations:
 - id: AVD-GIT-0001
 - id: AVD-GIT-0003
+# GitHub branch protection does not require signed commits - few repos using semantic-release can't force
+# signed commits, we'll migrate off of semantic-release to release-please.
+- id: AVD-GIT-0004
