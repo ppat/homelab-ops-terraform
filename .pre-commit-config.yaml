@@ -39,7 +39,7 @@ repos:
     - 'commitlint-plugin-function-rules@4.0.1'
     args: ['--verbose']
 - repo: https://github.com/gruntwork-io/pre-commit
-  rev: v0.1.29
+  rev: v0.1.30
   hooks:
   - id: terraform-fmt
   - id: terraform-validate
@@ -47,7 +47,7 @@ repos:
     args:
     - "--config=__GIT_ROOT__/.tflint.hcl"
 - repo: https://github.com/bridgecrewio/checkov.git
-  rev: 3.2.447
+  rev: 3.2.451
   hooks:
   - id: checkov
 - repo: https://github.com/zricethezav/gitleaks
