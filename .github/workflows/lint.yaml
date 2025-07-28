@@ -26,14 +26,11 @@ jobs:
         markdown:
         - '**.md'
         - '!**/CHANGELOG.md'
-        - .github/workflows/lint.yaml
         renovate:
         - .github/renovate.json
         - .github/renovate/**
-        - .github/workflows/lint.yaml
         shellscripts:
         - '**.sh'
-        - .github/workflows/lint.yaml
         terraform:
         - modules/**
         - workspaces/**
@@ -41,10 +38,8 @@ jobs:
         - '**/.terraform-version'
         - '**/.terraform.lock.hcl'
         - '.tflint.hcl'
-        - .github/workflows/lint.yaml
         yaml:
         - '**.yaml'
-        - .github/workflows/lint.yaml
       git_ref: ${{ github.head_ref || github.ref }}
 
   affected-terraform-dirs:
