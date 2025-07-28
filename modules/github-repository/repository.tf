@@ -3,7 +3,7 @@ resource "github_repository" "repository" {
   description = var.repository.description
   visibility  = var.repository.visibility
 
-  has_discussions = true
+  has_discussions = var.repository.visibility == "public"
   has_issues      = true
   has_projects    = false
   has_wiki        = false
