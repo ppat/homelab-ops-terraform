@@ -26,11 +26,14 @@ jobs:
         markdown:
         - '**.md'
         - '!**/CHANGELOG.md'
+        - .github/workflows/lint.yaml
         renovate:
         - .github/renovate.json
         - .github/renovate/**
+        - .github/workflows/lint.yaml
         shellscripts:
         - '**.sh'
+        - .github/workflows/lint.yaml
         terraform:
         - modules/**
         - workspaces/**
@@ -38,8 +41,10 @@ jobs:
         - '**/.terraform-version'
         - '**/.terraform.lock.hcl'
         - '.tflint.hcl'
+        - .github/workflows/lint.yaml
         yaml:
         - '**.yaml'
+        - .github/workflows/lint.yaml
       git_ref: ${{ github.head_ref || github.ref }}
 
   affected-terraform-dirs:
@@ -132,7 +137,7 @@ jobs:
       files: ${{ github.event_name != 'pull_request' && 'ALL' || fromJSON(needs.detect-changes.outputs.results).shellscripts_all_changed_files }}
 
   terraform:
-    needs: [detect-changes]
+    needs: [affected-terraform-dirs]
     if: ${{ github.event_name != 'pull_request' || needs.detect-changes.outputs.terraform_any_changed == 'true' }}
     uses: ppat/github-workflows/.github/workflows/lint-terraform.yaml@9c62c348f14e154e5ad83fbdde58c6213af9ab68 # v0.1.0
     with:
