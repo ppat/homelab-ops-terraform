@@ -133,7 +133,7 @@ jobs:
 
   terraform:
     needs: [affected-terraform-dirs]
-    if: ${{ github.event_name != 'pull_request' || fromJSON(needs.detect-changes.outputs.results).terraform_any_changed == 'true' }}
+    if: ${{ github.event_name != 'pull_request' || needs.affected-terraform-dirs.outputs.terraform_dirs != '[]' }}
     uses: ppat/github-workflows/.github/workflows/lint-terraform.yaml@9c62c348f14e154e5ad83fbdde58c6213af9ab68 # v0.1.0
     with:
       git_ref: ${{ github.head_ref || github.ref }}
