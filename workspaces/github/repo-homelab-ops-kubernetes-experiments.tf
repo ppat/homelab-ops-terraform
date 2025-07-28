@@ -1,21 +1,14 @@
-module "repo_github_workflows" {
+module "repo_homelab_ops_kubernetes_experiments" {
   source = "../../modules/github-repository"
   repository = {
-    name        = "github-workflows"
-    description = "Reusable github workflows"
-    visibility  = "public"
+    name        = "homelab-ops-kubernetes-experiments"
+    description = ""
+    visibility  = "private"
   }
   actions_allowed = [
-    "docker/build-push-action@*",
-    "docker/setup-buildx-action@*",
-    "docker/login-action@*",
-    "docker/metadata-action@*",
-    "docker/setup-qemu-action@*",
-    "googleapis/release-please-action@*",
-    "hadolint/hadolint-action@*",
+    "docker://ghcr.io/allenporter/flux-local:*",
     "jdx/mise-action@*",
-    "peter-evans/dockerhub-description@*",
-    "tailscale/github-action@*",
+    "mshick/add-pr-comment@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
@@ -26,4 +19,5 @@ module "repo_github_workflows" {
     RENOVATE_APP_ID             = data.bitwarden_secret.renovate_app_id.value
     RENOVATE_APP_PRIVATE_KEY    = data.bitwarden_secret.renovate_app_private_key.value
   }
+  force_push_bypassers = [data.github_user.current.node_id]
 }
