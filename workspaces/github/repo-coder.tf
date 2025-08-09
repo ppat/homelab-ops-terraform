@@ -11,7 +11,6 @@ module "repo_coder" {
     "docker/login-action@*",
     "docker/metadata-action@*",
     "docker/setup-qemu-action@*",
-    "hadolint/hadolint-action@*",
     "jdx/mise-action@*",
     "peter-evans/dockerhub-description@*",
     "tailscale/github-action@*",
@@ -24,19 +23,15 @@ module "repo_coder" {
     CONTAINER_REGISTRY          = "harbor.nas.${data.bitwarden_secret.dns_zone.value}"
     CONTAINER_REGISTRY_USERNAME = data.bitwarden_secret.harbor_robot_username.value
     CONTAINER_REGISTRY_PASSWORD = data.bitwarden_secret.harbor_robot_password.value
+    DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
+    DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value
     GH_RELEASES_TOKEN           = data.bitwarden_secret.github_release_token.value
     HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
     HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
-    # TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
-    # TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
-  }
-  environment_secrets = {
-    renovate = {
-      DOCKERHUB_USERNAME       = data.bitwarden_secret.dockerhub_username.value
-      DOCKERHUB_TOKEN          = data.bitwarden_secret.dockerhub_token.value
-      RENOVATE_APP_ID          = data.bitwarden_secret.renovate_app_id.value
-      RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
-    }
+    RENOVATE_APP_ID             = data.bitwarden_secret.renovate_app_id.value
+    RENOVATE_APP_PRIVATE_KEY    = data.bitwarden_secret.renovate_app_private_key.value
+    TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_githubactionsci_clientid.value
+    TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_githubactionsci_clientsecret.value
   }
   require_signed_commits = false
   topics = [

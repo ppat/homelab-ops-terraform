@@ -49,6 +49,12 @@ jobs:
     outputs:
       terraform_dirs: ${{ steps.determine-tf-dirs.outputs.dirs }}
     steps:
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      with:
+        fetch-depth: 1
+        persist-credentials: false
+
     - name: Determine Terraform directories to validate
       id: determine-tf-dirs
       # yamllint disable-line rule:indentation

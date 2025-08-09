@@ -3,6 +3,11 @@ variable "actions_secrets" {
   default = {}
 }
 
+variable "actions_variables" {
+  type    = map(string)
+  default = {}
+}
+
 variable "actions_allowed" {
   type    = list(string)
   default = []
