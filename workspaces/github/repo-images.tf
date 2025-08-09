@@ -6,20 +6,14 @@ module "repo_images" {
     visibility  = "public"
   }
   actions_allowed = [
-    "aquaproj/aqua-installer@*",
-    "aquaproj/update-checksum-action@*",
-    "aquaproj/update-checksum-workflow/.github/workflows/update-checksum.yaml@*",
     "docker/build-push-action@*",
     "docker/setup-buildx-action@*",
     "docker/login-action@*",
     "docker/metadata-action@*",
     "docker/setup-qemu-action@*",
-    "hadolint/hadolint-action@*",
     "jdx/mise-action@*",
     "peter-evans/dockerhub-description@*",
-    "suzuki-shunsuke/github-token-action@*",
     "tailscale/github-action@*",
-    "tibdex/github-app-token@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
@@ -30,16 +24,14 @@ module "repo_images" {
     DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value
     HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
     HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
-    # TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_clientid.value
-    # TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_client_secret.value
+    RENOVATE_APP_ID             = data.bitwarden_secret.renovate_app_id.value
+    RENOVATE_APP_PRIVATE_KEY    = data.bitwarden_secret.renovate_app_private_key.value
+    TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_githubactionsci_clientid.value
+    TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_githubactionsci_clientsecret.value
   }
-  environment_secrets = {
-    renovate = {
-      DOCKERHUB_USERNAME       = data.bitwarden_secret.dockerhub_username.value
-      DOCKERHUB_TOKEN          = data.bitwarden_secret.dockerhub_token.value
-      RENOVATE_APP_ID          = data.bitwarden_secret.renovate_app_id.value
-      RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
-    }
+  actions_variables = {
+    CONTAINER_REGISTRY_CACHE_PATH = "build-cache"
+    CONTAINER_REGISTRY_PATH       = "library"
   }
   homepage_url = "https://hub.docker.com/u/ppatlabs"
   topics = [

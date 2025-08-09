@@ -8,7 +8,6 @@ module "repo_homelab_ops_kubernetes_clusters" {
   actions_allowed = [
     "docker://ghcr.io/allenporter/flux-local:*",
     "jdx/mise-action@*",
-    "mshick/add-pr-comment@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {

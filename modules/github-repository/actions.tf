@@ -19,3 +19,10 @@ resource "github_actions_secret" "secret" {
   secret_name     = replace(upper(each.key), "-", "_")
   plaintext_value = each.value
 }
+
+resource "github_actions_variable" "variable" {
+  for_each      = var.actions_variables
+  repository    = github_repository.repository.name
+  variable_name = replace(upper(each.key), "-", "_")
+  value         = each.value
+}

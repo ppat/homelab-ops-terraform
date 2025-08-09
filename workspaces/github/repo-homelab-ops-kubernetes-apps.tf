@@ -7,12 +7,8 @@ module "repo_homelab_ops_kubernetes_apps" {
   }
   actions_allowed = [
     "docker://ghcr.io/allenporter/flux-local:*",
-    "fluxcd/flux2/action@*",
     "googleapis/release-please-action@*",
-    "helm/kind-action@*",
     "jdx/mise-action@*",
-    "kyverno/action-install-chainsaw@*",
-    "mshick/add-pr-comment@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {

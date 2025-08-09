@@ -6,12 +6,7 @@ module "repo_dotfiles" {
     visibility  = "public"
   }
   actions_allowed = [
-    "aquaproj/aqua-installer@*",
-    "aquaproj/update-checksum-action@*",
-    "aquaproj/update-checksum-workflow/.github/workflows/update-checksum.yaml@*",
     "jdx/mise-action@*",
-    "suzuki-shunsuke/github-token-action@*",
-    "tibdex/github-app-token@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
