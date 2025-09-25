@@ -47,7 +47,7 @@ repos:
     args:
     - "--config=__GIT_ROOT__/.tflint.hcl"
 - repo: https://github.com/bridgecrewio/checkov.git
-  rev: 3.2.467
+  rev: 3.2.471
   hooks:
   - id: checkov
 - repo: https://github.com/zricethezav/gitleaks
