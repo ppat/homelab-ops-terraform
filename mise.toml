@@ -1,11 +1,11 @@
 [tools]
 bun            = "1.2.23"
 node           = "22.20.0"
-"pipx:checkov" = "3.2.473"
+"pipx:checkov" = "3.2.484"
 terraform      = "1.6.6"
 terraform-docs = "0.20.0"
 tflint         = "0.59.1"
-uv             = "0.8.22"
+uv             = "0.9.1"
 
 [settings.npm]
 bun = true
