@@ -15,7 +15,7 @@ jobs:
   scan-scheduled:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       with:
         fetch-depth: 1
         persist-credentials: false
@@ -32,7 +32,7 @@ jobs:
         output: 'trivy-results.sarif'
 
     - name: Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@f94c9befffa4412c356fb5463a959ab7821dd57e # v3.31.3
+      uses: github/codeql-action/upload-sarif@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
@@ -45,7 +45,7 @@ jobs:
         output_file_path: console,checkov-results.sarif
 
     - name: Upload Checkov scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@f94c9befffa4412c356fb5463a959ab7821dd57e # v3.31.3
+      uses: github/codeql-action/upload-sarif@d3ced5c96c16c4332e2a61eb6f3649d6f1b20bb8 # v3.31.5
       if: always()
       with:
         sarif_file: checkov-results.sarif
