@@ -3,16 +3,16 @@ variable "bitwarden_project_id" {
   sensitive = true
 }
 
-variable "minio_homelab_endpoint" {
+variable "minio_nas_endpoint" {
   type = string
 }
 
-variable "minio_homelab_user" {
+variable "minio_nas_user" {
   type      = string
   sensitive = true
 }
 
-variable "minio_homelab_password" {
+variable "minio_nas_password" {
   type      = string
   sensitive = true
 }
