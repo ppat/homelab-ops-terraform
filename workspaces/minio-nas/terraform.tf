@@ -3,7 +3,7 @@ terraform {
 
   backend "s3" {
     bucket                      = "homelab-terraform-state"
-    key                         = "minio-homelab/terraform.tfstate"
+    key                         = "minio-nas/terraform.tfstate"
     skip_credentials_validation = true
     skip_requesting_account_id  = true
     skip_metadata_api_check     = true
@@ -29,8 +29,8 @@ provider "bitwarden" {
 }
 
 provider "minio" {
-  minio_server   = var.minio_homelab_endpoint
-  minio_user     = var.minio_homelab_user
-  minio_password = var.minio_homelab_password
+  minio_server   = var.minio_nas_endpoint
+  minio_user     = var.minio_nas_user
+  minio_password = var.minio_nas_password
   minio_ssl      = true
 }

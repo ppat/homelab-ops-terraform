@@ -7,12 +7,18 @@ data "minio_iam_policy_document" "default" {
   depends_on = [minio_s3_bucket.bucket]
   statement {
     effect = "Allow"
-    actions = [
-      "s3:DeleteObject",
-      "s3:GetObject",
-      "s3:ListBucket",
-      "s3:PutObject"
-    ]
+    actions = sort(
+      concat(
+        [
+          "s3:DeleteObject",
+          "s3:GetObject",
+          "s3:HeadBucket",
+          "s3:ListBucket",
+          "s3:PutObject"
+        ],
+        var.object_expiration_days != null ? ["s3:GetLifecycleConfiguration", "s3:PutLifecycleConfiguration"] : []
+      )
+    )
     resources = [
       minio_s3_bucket.bucket.arn,
       "${minio_s3_bucket.bucket.arn}/*"
@@ -31,18 +37,22 @@ resource "minio_iam_user_policy_attachment" "owner_policy" {
   policy_name = minio_iam_policy.owner_policy.name
 }
 
+resource "minio_iam_service_account" "owner" {
+  target_user = minio_iam_user.owner.name
+}
+
 resource "bitwarden_secret" "bucket_owner_accesskey" {
-  depends_on = [minio_iam_user.owner]
+  depends_on = [minio_iam_service_account.owner]
   key        = "bucket_${replace(var.bucket_name, "/[^a-zA-Z0-9]/", "")}_accesskey"
-  value      = var.owner_username
+  value      = minio_iam_service_account.owner.access_key
   project_id = var.bitwarden_project_id
   note       = "${var.bucket_name} bucket's accesskey"
 }
 
 resource "bitwarden_secret" "bucket_owner_secretkey" {
-  depends_on = [minio_iam_user.owner]
+  depends_on = [minio_iam_service_account.owner]
   key        = "bucket_${replace(var.bucket_name, "/[^a-zA-Z0-9]/", "")}_secretkey"
-  value      = minio_iam_user.owner.secret
+  value      = minio_iam_service_account.owner.secret_key
   project_id = var.bitwarden_project_id
   note       = "${var.bucket_name} bucket's secretkey"
 }

@@ -15,6 +15,12 @@ variable "bucket_policy" {
   default     = null
 }
 
+variable "object_expiration_days" {
+  description = "Number of days after which objects expire. If null, no expiration policy is applied"
+  type        = number
+  default     = null
+}
+
 variable "owner_username" {
   description = "Bucket owner"
   type        = string
