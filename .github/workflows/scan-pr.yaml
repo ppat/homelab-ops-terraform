@@ -43,7 +43,7 @@ jobs:
         persist-credentials: false
 
     - name: Run Checkov
-      uses: bridgecrewio/checkov-action@02a4c5d6a02367e5ea493c34c26b094302fd3f61
+      uses: bridgecrewio/checkov-action@20fb358293b0af0188f25cf7658b69d49ec12c9a
       with:
         config_file: .checkov.yaml
         output_format: github_failed_only
