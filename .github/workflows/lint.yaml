@@ -50,7 +50,7 @@ jobs:
       terraform_dirs: ${{ steps.determine-tf-dirs.outputs.dirs }}
     steps:
     - name: Checkout
-      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       with:
         fetch-depth: 1
         persist-credentials: false
@@ -152,3 +152,10 @@ jobs:
     with:
       git_ref: ${{ github.head_ref || github.ref }}
       files: ${{ github.event_name != 'pull_request' && 'ALL' || fromJSON(needs.detect-changes.outputs.results).yaml_all_changed_files }}
+
+  zizmor:
+    needs: [detect-changes]
+    if: ${{ github.event_name != 'pull_request' || fromJSON(needs.detect-changes.outputs.results).actions_any_changed == 'true' }}
+    uses: ppat/github-workflows/.github/workflows/lint-zizmor.yaml@d8be434313cb0ee0a3b27777b969760cb48b1aa7 # v4.0.0
+    with:
+      git_ref: ${{ github.head_ref || github.ref }}
