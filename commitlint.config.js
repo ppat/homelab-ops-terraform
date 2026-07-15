@@ -50,6 +50,7 @@ module.exports = {
         'github',
         'harbor',
         'minio-homelab',
+        'minio-nas',
         // terraform dependencies
         'terraform-provider',
         'terraform-version'
