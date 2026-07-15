@@ -6,6 +6,7 @@ module "repo_homelab_ops_actions" {
     visibility  = "public"
   }
   actions_allowed = [
+    "docker://ghcr.io/allenporter/flux-local:*",
     "googleapis/release-please-action@*",
     "jdx/mise-action@*",
     "tj-actions/changed-files@*"
