@@ -32,5 +32,5 @@ module "repo_github_workflows" {
     CONTAINER_REGISTRY_CACHE_PATH = "build-cache"
     CONTAINER_REGISTRY_PATH       = "library"
   }
-  force_push_bypassers = [data.github_user.current.node_id]
+  # force_push_bypassers = [data.github_user.current.node_id]
 }
