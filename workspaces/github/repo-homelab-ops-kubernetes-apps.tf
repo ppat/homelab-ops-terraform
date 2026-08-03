@@ -11,21 +11,45 @@ module "repo_homelab_ops_kubernetes_apps" {
     "jdx/mise-action@*",
     "tj-actions/changed-files@*"
   ]
-  # DO NOT APPLY until ppat/homelab-ops-kubernetes-apps#3416 and #3417 are both fixed
-  # AND confirmed reliably green on that repo's `main` - see PR description for why.
+  # #3416 and #3417 are both merged and confirmed green on main (kubernetes-manifests
+  # re-verified directly via workflow_dispatch against main's tip; detect-changes and
+  # pre-commit confirmed in the same run; commit-messages is PR-only by design and has
+  # passed repeatedly across every PR opened this session). Safe to apply.
   #
-  # Only `kubernetes-manifests` is listed: it's a single, fixed-name job with no
-  # matrix, so it always reports a check for every PR. The `diff-changes.yaml`
-  # workflow's `diff` job (the #3417 checks) uses a *dynamic* `module x resource`
-  # matrix derived from which modules a given PR touches - e.g. `diff (infra-database,
-  # helmrelease)` only exists on PRs that touch infra-database. Naming any of those
-  # matrix entries here would make GitHub wait forever ("Expected") on PRs that never
-  # produce that specific combination, permanently blocking their merge. There's no
-  # aggregator/gate job over the diff matrix to point at instead (verified by reading
-  # .github/workflows/diff-changes.yaml directly) - adding one is a separate follow-up
-  # if the diff checks should ever become required.
+  # This list is deliberately NOT every job in lint.yaml. A GitHub Actions job's check-run
+  # *name* is only stable across every PR if either (a) it has no job-level `if:` at all,
+  # or (b) its `if:` is unconditionally true for every `pull_request` event. Two distinct
+  # ways a job can fail that test, both confirmed against real runs on this repo:
+  #
+  #   1. Workflow-level `paths:` filters (diff-changes.yaml's `diff` job, and every
+  #      chainsaw `test-*.yaml` workflow) mean the workflow never triggers at all for a
+  #      PR that doesn't touch matching paths - zero check runs posted, so a required
+  #      check on any of their job names gets stuck "Expected" forever on unrelated PRs.
+  #      diff-changes.yaml also stacks a *dynamic* module x resource matrix on top (post
+  #      #3515), making individual `diff (<module>, <resource>)` names even less stable.
+  #
+  #   2. Job-level `if:` gating a *reusable workflow call* (lint.yaml's `github-actions`,
+  #      `markdown`, `renovate-config-check`, `shellcheck`, `yaml` jobs - all gated on
+  #      `fromJSON(needs.detect-changes.outputs.results).<bucket>_any_changed`) changes
+  #      the check-run *name itself* depending on whether the job actually invoked the
+  #      reusable workflow: it reports as bare `shellcheck` when skipped, but
+  #      `shellcheck / shellcheck` when it actually runs - two genuinely different
+  #      context strings from GitHub's point of view, confirmed via the raw Checks API
+  #      (not just the CLI display) against a real PR. Classic branch protection has no
+  #      OR-semantics, so requiring both strings doesn't help - it'd just permanently wait
+  #      on whichever one didn't fire. Fixing this needs an always-run gate job in
+  #      lint.yaml (aggregating `needs.*.result` with `if: always()`) before those five
+  #      can be safely required - not something this Terraform list alone can solve.
+  #
+  # The four below are unaffected by either failure mode: `kubernetes-manifests` has no
+  # reusable-workflow call at all (inline job, name never has a slash);
+  # `detect-changes`/`pre-commit` have no job-level `if:`; `commit-messages`'s only gate
+  # is `event_name == 'pull_request'`, true for every real PR event.
   required_status_checks = [
-    "kubernetes-manifests"
+    "kubernetes-manifests",
+    "detect-changes / detect-changed-files",
+    "pre-commit / pre-commit",
+    "commit-messages / commit-messages"
   ]
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
