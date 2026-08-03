@@ -13,8 +13,7 @@ module "repo_homelab_ops_kubernetes_apps" {
   ]
   # #3416 and #3417 are both merged and confirmed green on main (kubernetes-manifests
   # re-verified directly via workflow_dispatch against main's tip; detect-changes and
-  # pre-commit confirmed in the same run; commit-messages is PR-only by design and has
-  # passed repeatedly across every PR opened this session). Safe to apply.
+  # pre-commit confirmed in the same run). Safe to apply.
   #
   # This list is deliberately NOT every job in lint.yaml. A GitHub Actions job's check-run
   # *name* is only stable across every PR if either (a) it has no job-level `if:` at all,
@@ -41,15 +40,20 @@ module "repo_homelab_ops_kubernetes_apps" {
   #      lint.yaml (aggregating `needs.*.result` with `if: always()`) before those five
   #      can be safely required - not something this Terraform list alone can solve.
   #
-  # The four below are unaffected by either failure mode: `kubernetes-manifests` has no
-  # reusable-workflow call at all (inline job, name never has a slash);
-  # `detect-changes`/`pre-commit` have no job-level `if:`; `commit-messages`'s only gate
-  # is `event_name == 'pull_request'`, true for every real PR event.
+  # The three below are unaffected by either failure mode: `kubernetes-manifests` has no
+  # reusable-workflow call at all (inline job, name never has a slash); `detect-changes`/
+  # `pre-commit` have no job-level `if:` at all.
+  #
+  # `commit-messages / commit-messages` is ALSO name-stable (its only gate is
+  # `event_name == 'pull_request'`, true for every real PR) but deliberately left out
+  # anyway: Renovate-authored commits sometimes fail commitlint, and making this required
+  # would block those PRs - including automerge - on a lint failure in a commit message
+  # neither this repo nor Renovate's own config fully controls. Revisit only if that
+  # gets fixed at the source (Renovate commit-message template / commitlint config).
   required_status_checks = [
     "kubernetes-manifests",
     "detect-changes / detect-changed-files",
-    "pre-commit / pre-commit",
-    "commit-messages / commit-messages"
+    "pre-commit / pre-commit"
   ]
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
