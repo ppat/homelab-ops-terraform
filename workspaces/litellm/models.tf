@@ -1,23 +1,17 @@
-# Terraform-managed model additions ONLY — one modules/litellm-model instance per var.models
-# entry. The curated baseline catalog stays file-declared in the clusters repo and is not
-# represented here. How each model is built and guarded against colliding with that file-
-# declared catalog lives in the module; this file only says which models exist.
-module "model" {
-  source = "../../modules/litellm-model"
-
-  for_each = var.models
-
-  model_name          = each.key
-  custom_llm_provider = each.value.custom_llm_provider
-  base_model          = each.value.base_model
-  model_api_key       = each.value.model_api_key
-  model_api_base      = each.value.model_api_base
-  tpm                 = each.value.tpm
-  rpm                 = each.value.rpm
-  tier                = each.value.tier
-  mode                = each.value.mode
-
-  additional_litellm_params = each.value.additional_litellm_params
-
-  existing_models = data.litellm_models.all.models
-}
+# Terraform-managed model additions ONLY. The curated baseline catalog stays file-declared in
+# the clusters repo and is not represented here. There are zero Terraform-managed models
+# today. When one is needed, add a concrete instance here — NOT a map variable — following
+# the instance pattern in workspaces/minio-nas/bucket-*.tf:
+#
+# module "some_model_name" {
+#   source = "../../modules/litellm-model"
+#
+#   model_name          = "some_model_name"
+#   custom_llm_provider = "..."
+#   base_model          = "..."
+#
+#   existing_models = data.litellm_models.all.models
+# }
+#
+# One module block per model, real config committed inline — see main.tf for the shared
+# data.litellm_models.all this and every future instance's collision guard reads from.
