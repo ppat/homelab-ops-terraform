@@ -89,12 +89,16 @@ variable "mcp_servers" {
 # live proxy separately — see the IMPORT block at the bottom of virtual-keys.tf for how
 # each existing hand-minted key gets adopted before its entry here is filled in.
 #
-# `models` has no default in the object type below and is validated non-empty inside
-# modules/litellm-virtual-key itself (see the footgun comment above var.models in that
-# module's variables.tf) — every entry added here must set it explicitly. Set it to
-# ["all-proxy-models"] (never leave a key with an implicit/empty grant) for a key that's
-# genuinely meant to reach every model — see that same comment for why this sentinel
-# specifically, and why it stays dynamic instead of freezing today's model list.
+# `models`/`unrestricted_models`: mutually exclusive (exactly one must be set) per entry,
+# enforced inside modules/litellm-virtual-key by a `precondition` on litellm_key.this —
+# NOT a validation block here, because a variable validation can't reference a sibling
+# object attribute (only var.virtual_keys itself) without Terraform >= 1.9, and this repo
+# pins 1.6.6. See the footgun comment above var.unrestricted_models in that module's
+# variables.tf: LiteLLM treats an empty/omitted models list as UNRESTRICTED access to
+# every model, so every entry added here must set exactly one of these two — never leave
+# both at their defaults. unrestricted_models = true is how a key deliberately reaches
+# every model, including ones that don't exist yet (module translates it to LiteLLM's
+# "all-proxy-models" sentinel internally — that string never appears at this call site).
 #
 # `broad_mcp_access`: the OTHER MCP path (see the NAME COLLISION WARNING in
 # modules/litellm-virtual-key/variables.tf) — assigns this key to the shared
@@ -104,7 +108,8 @@ variable "mcp_servers" {
 # never both, so it's never ambiguous which one actually granted a given server.
 variable "virtual_keys" {
   type = map(object({
-    models                = list(string)
+    models                = optional(list(string), [])
+    unrestricted_models   = optional(bool, false)
     mcp_server_aliases    = optional(list(string), [])
     mcp_access_groups     = optional(list(string), [])
     mcp_tool_permissions  = optional(map(list(string)), {})

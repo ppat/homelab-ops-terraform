@@ -8,8 +8,9 @@ module "virtual_key" {
 
   for_each = var.virtual_keys
 
-  consumer = each.key
-  models   = each.value.models
+  consumer            = each.key
+  models              = each.value.models
+  unrestricted_models = each.value.unrestricted_models
 
   mcp_server_aliases   = each.value.mcp_server_aliases
   mcp_access_groups    = each.value.mcp_access_groups
@@ -117,11 +118,12 @@ resource "litellm_unified_access_group" "self_hosted_mcp_broad" {
 #     these are NOT copies of one profile). broad_mcp_access = false.
 #   - n8n: 5 explicit models; same 5 servers as openclaw, different (narrower) tool
 #     allowlists. broad_mcp_access = false.
-#   - coder, golynniis: models = ["all-proxy-models"] (currently [] live — see the KNOWN
-#     DIFF note below). broad_mcp_access = true — the only two keys on the shared
-#     litellm_unified_access_group above.
-#   - openwebui: models = ["all-proxy-models"] (currently [] live). broad_mcp_access =
-#     false — openwebui does not need MCP access; it stays at the module's default
+#   - coder, golynniis: unrestricted_models = true (currently models: [] live — see the
+#     KNOWN DIFF note below; the module translates this to LiteLLM's "all-proxy-models"
+#     sentinel internally, never typed at this call site). broad_mcp_access = true — the
+#     only two keys on the shared litellm_unified_access_group above.
+#   - openwebui: unrestricted_models = true (currently models: [] live). broad_mcp_access
+#     = false — openwebui does not need MCP access; it stays at the module's default
 #     (zero servers, object_permission left untouched — see object-permission.tf).
 #
 # Bitwarden: all five secrets already live in project e9c6c45e-e8d9-480c-b2cf-b204011e80e6
@@ -166,15 +168,18 @@ resource "litellm_unified_access_group" "self_hosted_mcp_broad" {
 #
 #   - litellm_key.this: NO changes for openclaw and n8n (their live config is fully
 #     explicit and reproducible in HCL). For openwebui/coder/golynniis: a KNOWN, EXPECTED
-#     diff on `models`, from live `[]` to desired `["all-proxy-models"]` — both mean
-#     "every model" (verified in LiteLLM v1.93.0 source: auth_checks.py:2877-2881 checks
+#     diff on `models`, from live `[]` to desired `["all-proxy-models"]` — the literal
+#     wire value that `unrestricted_models = true` resolves to internally (see
+#     modules/litellm-virtual-key/key.tf's `local.resolved_models`). Both mean "every
+#     model" (verified in LiteLLM v1.93.0 source: auth_checks.py:2877-2881 checks
 #     `len(models) == 0` and `all_proxy_models in filtered_models` as equally-unrestricted
 #     branches, and empirically against a sandbox proxy: a key with either form gets past
 #     the model-access gate for a model name that didn't exist at key-creation time,
 #     while an explicitly-scoped key gets a 403 for the same call), so this specific diff
 #     changes nothing about what the key can actually do — it only replaces an implicit
-#     grant with a stated one, which is the entire point of this module's validation.
-#     This is the ONE pre-approved exception to "no changes expected" — any OTHER diff on
+#     grant with a stated one (unrestricted_models = true in HCL), which is the entire
+#     point of this module's models/unrestricted_models pair. This is the ONE
+#     pre-approved exception to "no changes expected" — any OTHER diff on
 #     litellm_key.this, especially anything touching `models` beyond that exact `[]` ->
 #     `["all-proxy-models"]` transition, means the var.virtual_keys entry doesn't match
 #     live state. Stop and fix it before applying; do not apply a plan that changes this

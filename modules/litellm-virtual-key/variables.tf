@@ -8,44 +8,38 @@ variable "consumer" {
 # (auth_checks.py:2877 in LiteLLM v1.93.0: `(len(filtered_models) == 0 and len(models) ==
 # 0) or "*" in filtered_models` sets all_model_access = True). There is no key-level "no
 # models" sentinel; `no-default-models` is honoured only for *user* objects, never keys.
-# So this variable is REQUIRED (no default) and validated non-empty below — it must be
-# structurally impossible to plan a key with `models = []`. Do not add a `default = []`
-# to this variable, and do not change the validation to allow an empty list, even for a
-# "temporary" or "placeholder" key: that placeholder would silently be a full-access key
-# until someone notices.
+#
+# So "unfilled" and "deliberately unrestricted" must be distinguishable in HCL, and
+# neither of the two variables below can do that alone — hence both, plus a precondition
+# forcing exactly one to be set (see the `precondition` on `litellm_key.this` in key.tf;
+# it CANNOT live here as a `variable "validation"` block because those can't reference
+# another variable until Terraform 1.9, and this repo pins 1.6.6 — see key.tf for the
+# actual check and why it still fails at plan time). Leaving BOTH unset is an error, not
+# a silent "everything": that silent case is the exact footgun this exists to remove.
 #
 # If a key genuinely needs every model — including ones that don't exist yet, e.g. a
 # future OpenRouter release matched by the proxy's file-declared `openrouter/*` wildcard
-# model_list entry — say so explicitly with `models = ["all-proxy-models"]`
-# (SpecialModelNames.all_proxy_models, litellm/proxy/_types.py). Verified in LiteLLM
-# v1.93.0 source AND empirically against a live sandbox proxy that this is NOT expanded
-# to a concrete snapshot anywhere: key_management_endpoints.py writes the literal string
-# straight into the DB `models` column (no resolution at generate/update time), and
-# auth_checks.py's `_check_model_access_helper` — invoked on every request via
-# user_api_key_auth.py, the main auth middleware — re-checks that literal string against
-# whatever `model` was requested, every single call. So a model that didn't exist when
-# the key was created is still reachable the moment it's added to the router, with no
-# Terraform change. Empirical confirmation: a key with models=["all-proxy-models"]
-# calling a model name that exists nowhere in the router gets LiteLLM's *router*-level
-# "Invalid model name" error (400), never the *key-access* "key not allowed to access
-# model" / key_model_access_denied error (403) that an explicitly-scoped key gets for the
-# same call — proving the access gate itself was passed regardless of whether the model
-# was known at key-creation time.
-#
-# `["*"]` is also read by that same auth_checks.py line and is equally dynamic/unexpanded
-# (confirmed the same way) — but `all-proxy-models` is what LiteLLM's own Admin UI writes
-# for a key when an operator picks "All Proxy Models" (key_edit_view.tsx,
-# create_key_button.tsx), so it's both the more self-documenting choice and the one that
-# stays consistent with keys created by hand. Prefer it over `"*"`, which is also
-# overloaded elsewhere for provider-level model wildcards like "openai/*" and reads more
-# ambiguously here.
+# model_list entry — set `unrestricted_models = true` below. LiteLLM's own sentinel for
+# this, `SpecialModelNames.all_proxy_models` ("all-proxy-models", litellm/proxy/_types.py)
+# is a proxy implementation detail, not something this module's callers should ever have
+# to type or recognize — so it appears in exactly one place, the `local.resolved_models`
+# translation in key.tf, next to the verification evidence for why it's trusted to stay
+# dynamic (source citation + an empirical sandbox result). Do not reintroduce it as a
+# valid value of `models` below; the validation on `models` blocks it explicitly.
+variable "unrestricted_models" {
+  description = "Grant this key every model on the proxy, INCLUDING MODELS THAT DON'T EXIST YET — e.g. a future OpenRouter release matched by the proxy's openrouter/* wildcard becomes reachable through this key with no Terraform change. Mutually exclusive with `models`: set this to true OR set `models` to a non-empty list, never both, never neither — see the footgun comment above this variable and the precondition in key.tf."
+  type        = bool
+  default     = false
+}
+
 variable "models" {
-  description = "Models this key may access. Must be non-empty — see the footgun comment above this variable. Use [\"all-proxy-models\"] to deliberately grant every model, including ones that don't exist yet."
+  description = "Models this key may access, by explicit name. Mutually exclusive with `unrestricted_models = true` — see that variable's description and the footgun comment above it."
   type        = list(string)
+  default     = []
 
   validation {
-    condition     = length(var.models) > 0
-    error_message = "models must not be empty. LiteLLM treats an empty (or omitted) `models` list on a virtual key as UNRESTRICTED access to every model on the proxy — there is no key-level deny-all. If this key genuinely needs every model, say so explicitly with models = [\"all-proxy-models\"] instead of leaving this list empty — see the comment above this variable for why that sentinel (not just an empty list) is the correct way to express it."
+    condition     = !contains(var.models, "all-proxy-models")
+    error_message = "models must not contain the literal string \"all-proxy-models\" — that's LiteLLM's internal sentinel for unrestricted access, and this module deliberately keeps it out of its public interface so no call site has to recognize a magic string. Set unrestricted_models = true instead to express \"every model, deliberately\"."
   }
 }
 
