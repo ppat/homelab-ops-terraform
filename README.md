@@ -19,6 +19,7 @@ state/backend.
 | [`authentik`](workspaces/authentik) | Authentik SSO — applications, providers, and outposts |
 | [`github`](workspaces/github) | GitHub org repository configuration |
 | [`harbor`](workspaces/harbor) | Harbor container registry — auth, system config, robot accounts |
+| [`litellm`](workspaces/litellm) | LiteLLM proxy — models, remote MCP servers, and virtual keys |
 | [`minio-homelab`](workspaces/minio-homelab) | MinIO instance on homelab infra — Terraform state and Authentik media buckets |
 | [`minio-nas`](workspaces/minio-nas) | MinIO instance on NAS — CloudNativePG and Longhorn backup buckets |
 

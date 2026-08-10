@@ -49,6 +49,7 @@ module.exports = {
         'authentik',
         'github',
         'harbor',
+        'litellm',
         'minio-homelab',
         'minio-nas',
         // terraform dependencies
