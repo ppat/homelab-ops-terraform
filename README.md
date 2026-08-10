@@ -37,6 +37,7 @@ paths.
 | [`harbor-proxy-registry`](modules/harbor-proxy-registry) | Harbor pull-through proxy registry with retention policy |
 | [`litellm-mcp-server`](modules/litellm-mcp-server) | LiteLLM remote MCP server with file-declared collision guard |
 | [`litellm-model`](modules/litellm-model) | LiteLLM model with file-declared collision guard |
+| [`litellm-virtual-key`](modules/litellm-virtual-key) | LiteLLM virtual key with model/MCP access control and Bitwarden write-back |
 | [`minio-bucket`](modules/minio-bucket) | MinIO bucket with lifecycle rules and owner credentials |
 
 ## Prerequisites

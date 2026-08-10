@@ -1,6 +1,28 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
+provider "registry.terraform.io/devops-rob/terracurl" {
+  version     = "2.11.0"
+  constraints = ">= 2.0.0, 2.11.0"
+  hashes = [
+    "h1:y+qSMDxz3kBa4En+wrmVoG4tCFBDvtLgM3TtwpEEskA=",
+    "zh:14c958b8646905eccf57ac8247ecbb79511b2ad08bedbeceee719b68b8b984a7",
+    "zh:2effadc4cc087991e2b2df6bb559a2df9ea5221fe19cb882da83f87ae107a48d",
+    "zh:3a296eea81014c97f23a719e6c7d9b11e21ca17cac36117c4384722487d0bda8",
+    "zh:3be03e4bc1fb609cd14a8ef3514d023f9ba88687a22bd5ac67e0ff8c69c7af91",
+    "zh:44a4b7e20729509dfb175a852bb18e6db3d407bda00f14b59983f96e22ab0470",
+    "zh:4bc1b2464ef8ce75263cccd6656fcf1db7aaf548035b041bb94c7f6ebf91a5f5",
+    "zh:66f6c6ba0ff0ab20a36419bcaa3228c8ccdd736b11600f242a20fd3465d5ca58",
+    "zh:7a89202216a1778f524b66b981eaff711884e75bee5cc871648c4b58db5c3819",
+    "zh:8602feb759fd91a05f71b24a012440963d8d27e4616ff83f7f19a9b1b7c0f49b",
+    "zh:890df766e9b839623b1f0437355032a3c006226a6c200cd911e15ee1a9014e9f",
+    "zh:9396748181cfe7b42f598c5af8f06b8360cc688f4ee91caf35700de0bf3baabf",
+    "zh:9d6b0bf736f6920f0928370d2fbe513cde5698bbe4bd002e132f58662daa59d9",
+    "zh:b38d74d6048ed26394a07fed2bf692f29122ac30b4eceaf51a339cb169b6535a",
+    "zh:fc178f3ae700fff71d14a58a1c66919872e4dfb74e69d895c54545f48cdb9737",
+  ]
+}
+
 provider "registry.terraform.io/maxlaverse/bitwarden" {
   version     = "0.17.6"
   constraints = "0.17.6"
