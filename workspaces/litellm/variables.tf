@@ -8,7 +8,7 @@ variable "bitwarden_project_id" {
 # an openrouter/* wildcard) stays file-declared in the clusters repo's litellm-model-config
 # ConfigMap and is NOT represented here. Map key is the model_name as it will appear to
 # clients (e.g. in OpenWebUI) — keep it disjoint from every file-declared model_name; see the
-# collision-guard precondition in models.tf.
+# collision-guard precondition in modules/litellm-model/model.tf.
 variable "models" {
   type = map(object({
     custom_llm_provider       = string
@@ -27,8 +27,9 @@ variable "models" {
 # Remote/SaaS MCP servers ONLY. Self-hosted MCP servers stay file-declared in the apps repo's
 # LiteLLM HelmRelease and are NOT represented here. Map key is the server_name. LiteLLM rejects
 # "-" in MCP server names/aliases (underscores only) — enforced below. See the collision-guard
-# precondition in mcp-servers.tf for why file-declared and Terraform-managed names must stay
-# disjoint (a file-declared server always wins name resolution over a same-named DB one).
+# precondition in modules/litellm-mcp-server/mcp-server.tf for why file-declared and
+# Terraform-managed names must stay disjoint (a file-declared server always wins name
+# resolution over a same-named DB one).
 variable "mcp_servers" {
   type = map(object({
     url               = string

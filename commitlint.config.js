@@ -44,6 +44,8 @@ module.exports = {
         'github-repository',
         'harbor-local-registry',
         'harbor-proxy-registry',
+        'litellm-mcp-server',
+        'litellm-model',
         'minio-bucket',
         // workspaces
         'authentik',

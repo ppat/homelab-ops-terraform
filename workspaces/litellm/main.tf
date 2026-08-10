@@ -1,15 +1,22 @@
-# Shared data sources for the collision guard used by both models.tf and mcp-servers.tf:
-# reading the full inventory once and filtering it per-resource in a lifecycle precondition,
-# rather than re-querying per for_each key.
+# Shared data sources for the collision guard used by every modules/litellm-model and
+# modules/litellm-mcp-server instance below: reading the full inventory once here and passing
+# it into each module call as var.existing_models / var.existing_mcp_servers, rather than each
+# module instance re-querying it independently for every for_each key.
 data "litellm_models" "all" {}
 
 data "litellm_mcp_servers" "all" {}
 
 # Liveness checks for the collision guard's discriminator itself (see the id-shape heuristic
-# explained in models.tf / mcp-servers.tf). These are deliberately separate `check` blocks,
-# not folded into the per-resource preconditions above: "does this specific name collide" and
-# "is the file-vs-DB discriminator still able to tell the difference" are different questions.
-# The preconditions answer the first and only run per for_each key; these answer the second and
+# explained in modules/litellm-model/model.tf and modules/litellm-mcp-server/mcp-server.tf).
+# These live here, at the workspace level, rather than inside either module: the discriminator
+# is a property of the data sources themselves, shared by every model and MCP server, not of
+# any one object — duplicating it as a `check` block inside each of the N per-object module
+# instances below would just repeat the identical assertion N times over the same data.
+#
+# These are deliberately separate `check` blocks, not folded into the per-resource
+# preconditions living in the modules: "does this specific name collide" and "is the
+# file-vs-DB discriminator still able to tell the difference" are different questions. The
+# preconditions answer the first and only run per module instance; these answer the second and
 # only need to run once each, against the raw data sources.
 #
 # Why this needs its own check: the discriminator has no signal for its own correctness. If a
@@ -43,7 +50,7 @@ check "models_collision_guard_discriminator_live" {
         if !can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", m.id))
       ]) > 0
     )
-    error_message = "The models collision guard's file-vs-DB discriminator (id-shape heuristic, see models.tf) classified ZERO of the entries returned by data.litellm_models.all as file-declared, even though entries exist. The file-declared catalog is not supposed to be empty (20+ curated models normally live in the clusters repo's litellm-model-config ConfigMap), so this means the discriminator itself has stopped working, not that the catalog emptied out. The collision guard is no longer protecting anything against file-declared name collisions — re-verify the id-shape assumption (llm_router._generate_model_id vs this provider's resource_model.go uuid.New()) against the current LiteLLM and provider versions before trusting it again."
+    error_message = "The models collision guard's file-vs-DB discriminator (id-shape heuristic, see modules/litellm-model/model.tf) classified ZERO of the entries returned by data.litellm_models.all as file-declared, even though entries exist. The file-declared catalog is not supposed to be empty (20+ curated models normally live in the clusters repo's litellm-model-config ConfigMap), so this means the discriminator itself has stopped working, not that the catalog emptied out. The collision guard is no longer protecting anything against file-declared name collisions — re-verify the id-shape assumption (llm_router._generate_model_id vs this provider's resource_model.go uuid.New()) against the current LiteLLM and provider versions before trusting it again."
   }
 }
 
@@ -56,6 +63,6 @@ check "mcp_servers_collision_guard_discriminator_live" {
         if !can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", s.server_id))
       ]) > 0
     )
-    error_message = "The MCP server collision guard's file-vs-DB discriminator (id-shape heuristic, see mcp-servers.tf) classified ZERO of the entries returned by data.litellm_mcp_servers.all as file-declared, even though entries exist. The file-declared catalog is not supposed to be empty (12 self-hosted MCP servers normally live in the apps repo's LiteLLM HelmRelease), so this means the discriminator itself has stopped working, not that the catalog emptied out. The collision guard is no longer protecting anything against file-declared name collisions — re-verify the id-shape assumption against the current LiteLLM and provider versions before trusting it again."
+    error_message = "The MCP server collision guard's file-vs-DB discriminator (id-shape heuristic, see modules/litellm-mcp-server/mcp-server.tf) classified ZERO of the entries returned by data.litellm_mcp_servers.all as file-declared, even though entries exist. The file-declared catalog is not supposed to be empty (12 self-hosted MCP servers normally live in the apps repo's LiteLLM HelmRelease), so this means the discriminator itself has stopped working, not that the catalog emptied out. The collision guard is no longer protecting anything against file-declared name collisions — re-verify the id-shape assumption against the current LiteLLM and provider versions before trusting it again."
   }
 }
