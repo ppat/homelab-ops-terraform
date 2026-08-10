@@ -7,6 +7,7 @@ module "openwebui" {
 
   consumer            = "openwebui"
   unrestricted_models = true
+  allowed_routes      = ["llm_api_routes"]
 
   bitwarden_project_id = var.bitwarden_project_id
   litellm_api_base     = var.litellm_api_base

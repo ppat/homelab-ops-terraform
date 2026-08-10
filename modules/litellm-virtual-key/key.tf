@@ -45,6 +45,7 @@ resource "litellm_key" "this" {
   blocked               = var.blocked
   metadata              = var.metadata
   tags                  = var.tags
+  allowed_routes        = var.allowed_routes
 
   lifecycle {
     prevent_destroy = true

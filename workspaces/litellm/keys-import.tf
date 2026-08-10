@@ -2,10 +2,13 @@
 # IMPORT — adopting the five hand-minted keys (DO NOT let terraform apply create them)
 # ==============================================================================
 #
-# Five virtual keys already exist, hand-minted in the LiteLLM Admin UI, each live and in use
-# by a real consumer: openwebui, coder, golynniis (written — key-openwebui.tf, key-coder.tf,
-# key-golynniis.tf), and n8n, openclaw (not yet written — see key-n8n.tf, key-openclaw.tf for
-# why). They must be ADOPTED into Terraform state via `terraform import`, never recreated —
+# Five virtual keys already exist, hand-minted in the LiteLLM Admin UI, each live and in use by
+# a real consumer: openwebui, coder, golynniis, n8n, openclaw — all five now have real,
+# committed config (key-openwebui.tf, key-coder.tf, key-golynniis.tf, key-n8n.tf,
+# key-openclaw.tf; n8n/openclaw's model lists and per-server MCP tool allowlists were
+# transcribed verbatim from the owner-supplied live-key-config-verbatim.json and verified
+# programmatically against that source — see the PR description/report for the method and
+# counts). They must be ADOPTED into Terraform state via `terraform import`, never recreated —
 # recreating any of them rotates a live credential and breaks whatever is presenting it today.
 # This repo's owner runs the imports below by hand; nothing in this codebase invents or stores
 # the plaintext sk-... values needed to do it.
@@ -14,15 +17,15 @@
 # live state" step here — the config IS the repo. Each key-<consumer>.tf file is real,
 # committed, reviewed HCL, so the first plan after import verifies THAT CODE against live
 # state, not an untracked file nobody reviewed. That's the entire point of this shape: the
-# per-server tool allowlists (once key-n8n.tf/key-openclaw.tf are filled in) become reviewable,
-# versioned code instead of a blob no one else ever saw.
+# per-server tool allowlists are reviewable, versioned code instead of a blob no one else
+# ever saw.
 #
 # Bitwarden: all five secrets already live in project e9c6c45e-e8d9-480c-b2cf-b204011e80e6
 # (same shared infra project the ExternalSecrets machine account uses) — that's the real value
 # for TF_VAR_bitwarden_project_id, supplied by the owner outside this repo, never hardcoded
 # here per house style (see modules/litellm-virtual-key/bitwarden.tf).
 #
-# Procedure per consumer, once its key-<consumer>.tf file has real config committed:
+# Procedure per consumer (repeat for openwebui, coder, golynniis, n8n, openclaw):
 #
 #   1. Import the litellm_key resource, using the key's plaintext sk-... value (from wherever
 #      it's currently stored/used — never from GET /key/info, which only returns a hash) as
@@ -31,8 +34,8 @@
 #        terraform import 'module.openwebui.litellm_key.this'  sk-...
 #        terraform import 'module.coder.litellm_key.this'      sk-...
 #        terraform import 'module.golynniis.litellm_key.this'  sk-...
-#        terraform import 'module.n8n.litellm_key.this'        sk-...   # once key-n8n.tf exists
-#        terraform import 'module.openclaw.litellm_key.this'   sk-...   # once key-openclaw.tf exists
+#        terraform import 'module.n8n.litellm_key.this'        sk-...
+#        terraform import 'module.openclaw.litellm_key.this'   sk-...
 #
 #   2. Import the Bitwarden secret that already holds that plaintext. The maxlaverse/bitwarden
 #      provider's import is a plain passthrough onto the secret's own `id`
@@ -50,8 +53,9 @@
 #
 # What the plan SHOULD show after step 3, and why:
 #
-#   - litellm_key.this: NO changes for n8n and openclaw, once written (their live config is
-#     fully explicit and reproducible in HCL). For openwebui/coder/golynniis: a KNOWN, EXPECTED
+#   - litellm_key.this: NO changes for n8n and openclaw (their live config is fully explicit
+#     and reproducible in HCL — transcribed verbatim and verified against the source, see
+#     above). For openwebui/coder/golynniis: a KNOWN, EXPECTED
 #     diff on `models`, from live `[]` to desired `["all-proxy-models"]` — the literal wire
 #     value that `unrestricted_models = true` resolves to internally (see
 #     modules/litellm-virtual-key/key.tf's `local.resolved_models`). Both mean "every model"
@@ -72,7 +76,7 @@
 #     stored in that Bitwarden secret (which it should, since that plaintext IS this key's
 #     token).
 #
-#   - terracurl_request.object_permission: for n8n/openclaw once written, WILL show as "1 to
+#   - terracurl_request.object_permission: for n8n/openclaw, WILL show as "1 to
 #     add" — this is expected, not a sign of a bad import: it's a brand-new Terraform-only
 #     resource with no remote object to adopt (there's nothing meaningful to `terraform import`
 #     here — it's a one-shot HTTP call, not an addressable object). Applying it re-POSTs

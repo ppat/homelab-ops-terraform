@@ -134,13 +134,19 @@ variable "blocked" {
 }
 
 variable "metadata" {
-  description = "Metadata attached to the key"
+  description = "Metadata attached to the key. Values are strings, but the provider (metadata_helpers.go: convertMetadataToNative) treats any value starting with '[' or '{' as JSON and parses it back to a native type before sending to the API — so a live value that's an object or array (e.g. LiteLLM's own tag_rpm_limit: {}) must be given here as jsonencode(...), not a bare string, to round-trip correctly. jsonencode(false)/jsonencode(true) work the same way for booleans (e.g. throttle_on_budget_exceeded)."
   type        = map(string)
   default     = {}
 }
 
 variable "tags" {
   description = "Tags attached to the key"
+  type        = list(string)
+  default     = null
+}
+
+variable "allowed_routes" {
+  description = "API routes this key may call (e.g. [\"llm_api_routes\"]). Null/omitted lets LiteLLM apply its own default route set"
   type        = list(string)
   default     = null
 }
