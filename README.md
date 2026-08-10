@@ -35,6 +35,8 @@ paths.
 | [`github-repository`](modules/github-repository) | GitHub repository, branch protection, actions, environments |
 | [`harbor-local-registry`](modules/harbor-local-registry) | Harbor local (push) registry with retention policy |
 | [`harbor-proxy-registry`](modules/harbor-proxy-registry) | Harbor pull-through proxy registry with retention policy |
+| [`litellm-mcp-server`](modules/litellm-mcp-server) | LiteLLM remote MCP server with file-declared collision guard |
+| [`litellm-model`](modules/litellm-model) | LiteLLM model with file-declared collision guard |
 | [`minio-bucket`](modules/minio-bucket) | MinIO bucket with lifecycle rules and owner credentials |
 
 ## Prerequisites
