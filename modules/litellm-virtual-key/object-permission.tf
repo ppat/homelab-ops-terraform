@@ -44,16 +44,15 @@
 # sensitive in its schema. Authentication for this call is the proxy MASTER
 # key (var.litellm_master_key) — never the virtual key being updated.
 #
-# Only fires when there's actually something explicit to set: a key using the OTHER,
-# broad-grant path (assignment to a litellm_unified_access_group — see the NAME
-# COLLISION WARNING in variables.tf) leaves mcp_server_aliases/mcp_access_groups/
-# mcp_tool_permissions at their empty defaults, and for that key we deliberately do
-# NOTHING here rather than actively POST an explicit-empty object_permission. A
-# freshly-created litellm_key already has object_permission = null — the verified-safe
-# "zero MCP" default (see the fails-CLOSED comment on mcp_server_aliases) — and leaving
-# it untouched is strictly safer than writing an equivalent-looking explicit empty object
-# whose interaction with a separate unified-access-group assignment isn't something this
-# module has verified.
+# Only fires when there's actually something explicit to set: a key that's meant to keep
+# broad/untouched MCP access (coder, golynniis, openwebui) simply never passes
+# mcp_server_aliases/mcp_access_groups/mcp_tool_permissions, and for that key we
+# deliberately do NOTHING here rather than actively POST an explicit-empty
+# object_permission. A freshly-created (or hand-minted) litellm_key already has
+# object_permission = null by default — see the comment on mcp_server_aliases in
+# variables.tf for what that null actually means — and leaving it untouched is the only
+# way to faithfully reproduce that, rather than asserting an equivalent-looking value
+# this module hasn't verified is actually equivalent.
 resource "terracurl_request" "object_permission" {
   count = (
     length(var.mcp_server_aliases) > 0 ||

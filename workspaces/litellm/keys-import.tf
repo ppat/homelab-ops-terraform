@@ -53,60 +53,36 @@
 #
 # What the plan SHOULD show after step 3, and why:
 #
-#   - litellm_key.this: NO changes for n8n and openclaw (their live config is fully explicit
-#     and reproducible in HCL — transcribed verbatim and verified against the source, see
-#     above). For openwebui/coder/golynniis: a KNOWN, EXPECTED
-#     diff on `models`, from live `[]` to desired `["all-proxy-models"]` — the literal wire
-#     value that `unrestricted_models = true` resolves to internally (see
-#     modules/litellm-virtual-key/key.tf's `local.resolved_models`). Both mean "every model"
-#     (verified in LiteLLM v1.93.0 source: auth_checks.py:2877-2881 checks `len(models) == 0`
-#     and `all_proxy_models in filtered_models` as equally-unrestricted branches, and
-#     empirically against a sandbox proxy: a key with either form gets past the model-access
-#     gate for a model name that didn't exist at key-creation time, while an explicitly-scoped
-#     key gets a 403 for the same call), so this specific diff changes nothing about what the
-#     key can actually do — it only replaces an implicit grant with a stated one
-#     (unrestricted_models = true in HCL), which is the entire point of this module's
-#     models/unrestricted_models pair. This is the ONE pre-approved exception to "no changes
-#     expected" — any OTHER diff on litellm_key.this, especially anything touching `models`
-#     beyond that exact `[]` -> `["all-proxy-models"]` transition, means the committed config
-#     doesn't match live state. Stop and fix the key-<consumer>.tf file before applying; do not
-#     apply a plan that changes this resource without understanding exactly why.
+#   - litellm_key.this: NO changes, for ALL FIVE keys — a true no-op, not a "modulo one known
+#     diff" one. For n8n/openclaw that's because their live config is fully explicit and
+#     transcribed verbatim (verified against the source, see above). For openwebui/coder/
+#     golynniis it's because `unrestricted_models = true` resolves to `models = null` (see
+#     modules/litellm-virtual-key/key.tf's `local.resolved_models`), not an empty list or a
+#     sentinel — `null` is the one config value measured (against a live sandbox proxy, using
+#     the real provider, both via fresh create and via `terraform import`) to read back
+#     without drift against a key whose `models` field has genuinely never been set, which is
+#     exactly what these three keys are. There is no pre-approved exception left: **any** diff
+#     on litellm_key.this — on `models` or anything else — means the committed config doesn't
+#     match live state. Stop and fix the key-<consumer>.tf file before applying; do not apply
+#     a plan that changes this resource without understanding exactly why.
 #
 #   - bitwarden_secret.apikey: NO changes, once its `value` matches the plaintext already
 #     stored in that Bitwarden secret (which it should, since that plaintext IS this key's
 #     token).
 #
-#   - terracurl_request.object_permission: for n8n/openclaw, WILL show as "1 to
-#     add" — this is expected, not a sign of a bad import: it's a brand-new Terraform-only
-#     resource with no remote object to adopt (there's nothing meaningful to `terraform import`
-#     here — it's a one-shot HTTP call, not an addressable object). Applying it re-POSTs
+#   - terracurl_request.object_permission: for n8n/openclaw only, WILL show as "1 to add" —
+#     this is expected, not a sign of a bad import: it's a brand-new Terraform-only resource
+#     with no remote object to adopt (there's nothing meaningful to `terraform import` here —
+#     it's a one-shot HTTP call, not an addressable object). Applying it re-POSTs
 #     object_permission to values that should already match what's live today, so it's a safe,
 #     idempotent no-op against the proxy even though Terraform reports it as a create. For
-#     openwebui/coder/golynniis, this resource won't exist at all (count = 0 — see
-#     object-permission.tf), so nothing to expect here.
+#     openwebui/coder/golynniis, this resource doesn't exist at all (count = 0 — see
+#     object-permission.tf) — those three keys' MCP access stays exactly as untouched as it is
+#     today; nothing in this workspace asserts, replicates, or interferes with however they
+#     currently get it (see the comment on mcp_server_aliases in modules/litellm-virtual-key/
+#     variables.tf).
 #
-#   - litellm_unified_access_group.self_hosted_mcp_broad (mcp-access-group.tf): WILL show as
-#     "1 to add" — same reasoning as the terracurl resource: a new, native Terraform resource
-#     with nothing to adopt, whose apply is expected to be a safe, additive no-op against what
-#     coder/golynniis can already do (see the open admin-role question below).
-#
-# So: "no-op" is the bar for litellm_key and bitwarden_secret specifically (modulo the one
-# pre-approved models diff above) — those are the two resources where a surprise change is the
-# actual hazard (rotated credential, clobbered secret). A clean first plan means those two show
-# nothing unexpected, not that the whole plan is empty.
-#
-# STILL OPEN, OWNER TO CONFIRM BEFORE IMPORTING coder/golynniis: how do these two keys
-# currently get MCP access at all? LiteLLM's own source (mcp_server_manager.py:
-# get_allowed_mcp_servers) gives a non-admin key with object_permission = None (their live
-# state) ZERO servers — no config-level allow_all_keys override exists anywhere in the apps
-# repo's Helm values (confirmed: field never set, defaults False in 4 places in LiteLLM
-# source). The remaining explanation is that these two keys carry Proxy Admin role (both have
-# user_id "default_user_id"), which grants every server implicitly (mcp_server_manager.py:
-# 1729) — and, if so, plausibly the management API too, not just models+MCP. The owner has
-# confirmed broad MCP+model access for these two hosts is INTENTIONAL; what's still unconfirmed
-# is the CURRENT mechanism, which matters here specifically because assigning them to
-# litellm_unified_access_group.self_hosted_mcp_broad only ADDS an explicit, admin-independent
-# grant — it does not by itself remove any admin role they may already hold. If de-privileging
-# them to non-admin is ever desired, confirm the access group covers everything they need FIRST
-# (it's designed to), then drop the admin role separately — that ordering avoids a gap where a
-# key temporarily has neither.
+# So: a clean first plan for this workspace means litellm_key and bitwarden_secret show
+# nothing at all — those are the two resources where a surprise change is the actual hazard
+# (rotated credential, clobbered secret) — and the only adds are the two terracurl_request
+# resources for n8n/openclaw.

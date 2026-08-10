@@ -1,27 +1,32 @@
 locals {
-  # THE ONLY PLACE "all-proxy-models" APPEARS IN THIS MODULE. LiteLLM's own sentinel for
-  # "every model on the proxy" (SpecialModelNames.all_proxy_models,
-  # litellm/proxy/_types.py) — deliberately kept out of this module's public interface
-  # (var.models rejects it outright; var.unrestricted_models is how a caller expresses
-  # the same intent without needing to know or type this string).
+  # var.unrestricted_models must resolve to whatever config value produces a CLEAN plan
+  # against a live key that has no models restriction — which is how coder/golynniis/
+  # openwebui actually exist today (hand-minted in the Admin UI with the models field
+  # never touched at all). This is `null`, not `[]` — measured, not assumed, against a
+  # live sandbox proxy (namespace litellm-audit, kube context sandbox-talos) using the
+  # real ncecere/litellm provider, 2026-08-10:
   #
-  # Trusted to stay DYNAMIC rather than a point-in-time snapshot, verified two ways
-  # against LiteLLM v1.93.0:
-  #   - Source: key_management_endpoints.py writes the `models` list straight into the DB
-  #     verbatim (no expansion at /key/generate or /key/update time), and
-  #     auth_checks.py's `_check_model_access_helper` — invoked on every single request
-  #     via user_api_key_auth.py, the main auth middleware — re-checks that literal
-  #     string against whatever model was just requested. So a model that didn't exist
-  #     when this key was created is reachable the moment it's added to the router, with
-  #     no Terraform change.
-  #   - Empirical: against a live sandbox proxy, a key with models=["all-proxy-models"]
-  #     calling a model name that exists nowhere in the router got the proxy's
-  #     *router*-level "Invalid model name" error (400) — never the *key-access* "key not
-  #     allowed to access model" / key_model_access_denied error (403) that an
-  #     explicitly-scoped key gets for the identical call. That's proof the access GATE
-  #     itself was passed regardless of whether the model was known at key-creation time;
-  #     the 400 only means the sandbox's router had nothing registered under that name.
-  resolved_models = var.unrestricted_models ? ["all-proxy-models"] : var.models
+  #   1. Two keys created via the raw API: one with `models` omitted from the JSON body
+  #      entirely, one with `"models": []` explicit. GET /key/info renders BOTH
+  #      identically as `"models": []` — the API's rendering does not distinguish
+  #      "omitted" from "explicit empty" after the fact, so it can't tell you what config
+  #      value to use.
+  #   2. `terraform import`ing each into a bare `litellm_key` resource (no `models` in
+  #      config) and inspecting `terraform show -json`: the provider's Read populates
+  #      `models` as `null` in state for BOTH — not `[]` — because its Read logic
+  #      (resource_key.go) only fills in an empty-list value when the incoming state
+  #      already held a non-null list (i.e. on a fresh create from config that specified
+  #      `models = []`); on import there's no such prior value, so it stays null.
+  #   3. Plan against that imported (null) state: `models = []` in config produced a real
+  #      diff (`1 to change`, null -> []) — NOT a clean plan. `models = null` and omitting
+  #      the argument entirely both produced "No changes." Confirmed both directions:
+  #      importing into null-state config and fresh-creating with `models = null` (which
+  #      then reads back as null and stays clean on every subsequent plan) both work.
+  #
+  # So `[]` is the API's rendering of "no restriction", but `null` is the one Terraform
+  # config value that reproduces "this key's models field has never been touched" without
+  # asserting a value the live key doesn't actually have set.
+  resolved_models = var.unrestricted_models ? null : var.models
 }
 
 # `prevent_destroy`: the five keys this module exists to manage are ADOPTED (imported),
@@ -59,12 +64,14 @@ resource "litellm_key" "this" {
     # values computed from a resource or data source), Terraform evaluates it during
     # planning — this fails the `terraform plan`, not the apply.
     #
-    # LiteLLM treats an empty (or omitted) `models` list on a virtual key as
+    # LiteLLM treats an empty (or omitted/null) `models` list on a virtual key as
     # UNRESTRICTED — full access to every model on the proxy; there is no key-level
     # deny-all. Leaving both unrestricted_models and models unset here would silently
     # produce that exact same unrestricted grant, which is the footgun this whole
     # variable pair exists to remove — so neither "both set" nor "neither set" is
-    # allowed, only exactly one.
+    # allowed, only exactly one. (var.models itself still defaults to `[]`, never
+    # `null` — the null case only ever happens via local.resolved_models above, once
+    # unrestricted_models has already been deliberately set to true.)
     precondition {
       condition     = var.unrestricted_models != (length(var.models) > 0)
       error_message = "Exactly one of unrestricted_models or models must be set for consumer '${var.consumer}'. LiteLLM treats an empty (or omitted) models list on a virtual key as UNRESTRICTED access to every model on the proxy — there is no key-level deny-all — so leaving both unset here would silently grant everything. Set unrestricted_models = true to deliberately grant every model (including ones that don't exist yet), or set models to an explicit non-empty list. Never both, never neither."

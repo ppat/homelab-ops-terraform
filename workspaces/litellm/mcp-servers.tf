@@ -13,5 +13,4 @@
 # }
 #
 # One module block per server, real config committed inline — see main.tf for the shared
-# data.litellm_mcp_servers.all this and every future instance's collision guard reads from,
-# and mcp-access-group.tf for the (unrelated) self-hosted server catalog.
+# data.litellm_mcp_servers.all this and every future instance's collision guard reads from.

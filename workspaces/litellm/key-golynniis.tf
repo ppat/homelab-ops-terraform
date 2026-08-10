@@ -1,6 +1,5 @@
 # golynniis: a MacBook (host key). Same posture as coder — see the comment there — every model
-# on the proxy, broad MCP access via litellm_unified_access_group.self_hosted_mcp_broad in
-# mcp-access-group.tf.
+# on the proxy, MCP access left entirely untouched (no separate "broad access" mechanism).
 module "golynniis" {
   source = "../../modules/litellm-virtual-key"
 

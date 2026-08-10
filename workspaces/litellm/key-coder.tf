@@ -1,8 +1,12 @@
-# coder: a Coder environment (host key). Every model on the proxy, and broad MCP access — every
-# self-hosted server, no tool filtering — both deliberate for this personally-controlled host
-# (owner-confirmed 2026-08-10, see mcp-access-group.tf). MCP access comes entirely from being
-# assigned to litellm_unified_access_group.self_hosted_mcp_broad there, by this module's
-# key_id output — nothing MCP-related is passed to the module itself.
+# coder: a Coder environment (host key). Every model on the proxy, and untouched MCP access —
+# both deliberate for this personally-controlled host (owner-confirmed 2026-08-10). This key
+# has never had `models` or `object_permission` set at all, live today, and this module
+# reproduces exactly that: unrestricted_models = true resolves to `models = null` (not an
+# empty list — see the measured evidence in modules/litellm-virtual-key/key.tf), and simply
+# never passing mcp_server_aliases/mcp_access_groups/mcp_tool_permissions leaves
+# object_permission untouched (see the comment on mcp_server_aliases in that module's
+# variables.tf). There is no separate "broad access" resource or mechanism — this key gets
+# broad access the same way it does on the live proxy: by having no restriction configured.
 module "coder" {
   source = "../../modules/litellm-virtual-key"
 

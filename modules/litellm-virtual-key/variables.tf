@@ -17,17 +17,18 @@ variable "consumer" {
 # actual check and why it still fails at plan time). Leaving BOTH unset is an error, not
 # a silent "everything": that silent case is the exact footgun this exists to remove.
 #
-# If a key genuinely needs every model — including ones that don't exist yet, e.g. a
-# future OpenRouter release matched by the proxy's file-declared `openrouter/*` wildcard
-# model_list entry — set `unrestricted_models = true` below. LiteLLM's own sentinel for
-# this, `SpecialModelNames.all_proxy_models` ("all-proxy-models", litellm/proxy/_types.py)
-# is a proxy implementation detail, not something this module's callers should ever have
-# to type or recognize — so it appears in exactly one place, the `local.resolved_models`
-# translation in key.tf, next to the verification evidence for why it's trusted to stay
-# dynamic (source citation + an empirical sandbox result). Do not reintroduce it as a
-# valid value of `models` below; the validation on `models` blocks it explicitly.
+# If a key genuinely needs every model — reproducing the state of a hand-minted key whose
+# `models` field was simply never touched, which is what coder/golynniis/openwebui
+# actually are today — set `unrestricted_models = true` below. This does NOT translate to
+# LiteLLM's `"all-proxy-models"` sentinel; it translates to `null` (see the measured
+# evidence in key.tf's `local.resolved_models` — importing a genuinely-untouched key and
+# testing candidate config values against it showed `[]` produces a real diff against
+# that state, while `null`/omitting the argument is the one value that plans clean). Do
+# not reintroduce `"all-proxy-models"` as a valid value of `models` below; the validation
+# on `models` blocks it explicitly, since it's a different (if overlapping) representation
+# that this module doesn't use and that a live key here has never actually carried.
 variable "unrestricted_models" {
-  description = "Grant this key every model on the proxy, INCLUDING MODELS THAT DON'T EXIST YET — e.g. a future OpenRouter release matched by the proxy's openrouter/* wildcard becomes reachable through this key with no Terraform change. Mutually exclusive with `models`: set this to true OR set `models` to a non-empty list, never both, never neither — see the footgun comment above this variable and the precondition in key.tf."
+  description = "Grant this key every model on the proxy, reproducing a hand-minted key whose models field was never set at all (not a distinct sentinel — see the footgun comment above this variable for the measured reasoning). Mutually exclusive with `models`: set this to true OR set `models` to a non-empty list, never both, never neither — see the precondition in key.tf."
   type        = bool
   default     = false
 }
@@ -39,34 +40,32 @@ variable "models" {
 
   validation {
     condition     = !contains(var.models, "all-proxy-models")
-    error_message = "models must not contain the literal string \"all-proxy-models\" — that's LiteLLM's internal sentinel for unrestricted access, and this module deliberately keeps it out of its public interface so no call site has to recognize a magic string. Set unrestricted_models = true instead to express \"every model, deliberately\"."
+    error_message = "models must not contain the literal string \"all-proxy-models\" — that's LiteLLM's sentinel for unrestricted access, but it is not what this module uses (see the footgun comment above var.unrestricted_models) and not what any live key managed here actually carries. Set unrestricted_models = true instead."
   }
 }
 
 # MCP access is an entirely separate gate from `models` above (model checks are never
 # invoked on MCP endpoints — the two must stay uncoupled inputs). Unlike models, MCP
-# fails CLOSED: a key with no object_permission gets zero servers, so there is no
-# equivalent trap to guard against here — an empty/omitted list here is safe and simply
-# means "no MCP access", not "all MCP access".
+# fails CLOSED: a key with no object_permission gets zero servers... for a NON-admin key.
+# LiteLLM's own gate (mcp_server_manager.py: get_allowed_mcp_servers) grants every server
+# to an admin-role key with no explicit object_permission — a broader, admin-derived
+# "everything" that this module does not assert, replicate, or interfere with. So an
+# empty/omitted config here means exactly one thing: this module leaves object_permission
+# completely untouched, whatever that resolves to for the underlying key. That's also why
+# there's no equivalent to the models footgun to guard against: unlike an empty `models`
+# list (which IS itself the unrestricted grant), leaving these three variables at their
+# defaults doesn't assert zero MCP access — it asserts NOTHING, faithfully reproducing a
+# hand-minted key whose object_permission was simply never set (coder, golynniis,
+# openwebui today — see their key-<consumer>.tf files). litellm_key itself has no
+# object_permission attribute at all (this provider only implements that block on
+# litellm_agent), so there's nothing for this module to touch unless the REST seam in
+# object-permission.tf actually fires — and it only fires when at least one of these
+# three is non-default (see its `count`).
 #
-# THIS MODULE ONLY IMPLEMENTS THE EXPLICIT/NARROW SHAPE (bespoke per-key server + tool
-# grants, via the object_permission REST seam in object-permission.tf). A key that needs
-# broad "every self-hosted MCP server, no tool filtering" access instead uses a
-# completely separate mechanism that this module deliberately does NOT own: the
-# ncecere/litellm `litellm_unified_access_group` resource, composed by the WORKSPACE
-# (see workspaces/litellm/virtual-keys.tf), which assigns a key to the group BY ITS
-# key_id — an entirely different attachment point from object_permission, requiring none
-# of these three variables. The two paths are mutually exclusive by construction: a key
-# either passes explicit values here, or gets its key_id added to that shared group, but
-# never both (workspaces/litellm/variables.tf validates this). This module has no
-# awareness of which path a given key uses — it just does the explicit half correctly.
-#
-# NAME COLLISION WARNING: `mcp_access_groups` below is LiteLLM's OLDER, string-tag
-# mechanism (object_permission.mcp_access_groups; a server opts into a named group via
-# its own `mcp_access_groups` field in modules/litellm-mcp-server, and a key opts into
-# using that group here) — NOT the `litellm_unified_access_group` resource described
-# above, despite both being called "access group" in LiteLLM's own vocabulary. Don't
-# conflate them when reading this module or the workspace.
+# THIS MODULE ONLY IMPLEMENTS THE EXPLICIT SHAPE: bespoke per-key server + tool grants,
+# via the object_permission REST seam. There is no separate "broad access" mechanism to
+# opt into — broad access is simply the result of never calling this module with any of
+# these three set, same as it is for a hand-minted key in the Admin UI.
 variable "mcp_server_aliases" {
   description = "MCP servers this key may access, referenced BY ALIAS (or server_name) — never by the server's internal ID. LiteLLM resolves object_permission.mcp_servers entries by alias/server_name as well as by ID, and alias is the only one of those that's stable if a server's URL ever changes, so always pass aliases here."
   type        = list(string)
@@ -74,13 +73,13 @@ variable "mcp_server_aliases" {
 }
 
 variable "mcp_access_groups" {
-  description = "MCP access groups this key belongs to (object_permission.mcp_access_groups) — LiteLLM's string-tag mechanism where a server opts into a named group and a key is granted that group name. NOT the litellm_unified_access_group resource (see the NAME COLLISION WARNING above this variable's siblings)."
+  description = "MCP access groups this key belongs to (object_permission.mcp_access_groups) — LiteLLM's string-tag mechanism where a server opts into a named group and a key is granted that group name."
   type        = list(string)
   default     = []
 }
 
 variable "mcp_tool_permissions" {
-  description = "Per-MCP-server tool allow-lists (object_permission.mcp_tool_permissions), keyed BY ALIAS to match mcp_server_aliases — e.g. { my_server = [\"tool_a\", \"tool_b\"] }. This is ANDed with each server's own allowed_tools/disallowed_tools (owned in the apps repo's Helm values, not here): a tool must be permitted by both to be usable. Genuinely per-key, per-server: two keys granted the same server can and do carry different tool lists here (see openclaw vs n8n in workspaces/litellm/virtual-keys.tf) — this is never a shared profile with overrides."
+  description = "Per-MCP-server tool allow-lists (object_permission.mcp_tool_permissions), keyed BY ALIAS to match mcp_server_aliases — e.g. { my_server = [\"tool_a\", \"tool_b\"] }. This is ANDed with each server's own allowed_tools/disallowed_tools (owned in the apps repo's Helm values, not here): a tool must be permitted by both to be usable. Genuinely per-key, per-server: two keys granted the same server can and do carry different tool lists here (see openclaw vs n8n in workspaces/litellm/key-openclaw.tf and key-n8n.tf) — this is never a shared profile with overrides."
   type        = map(list(string))
   default     = {}
 }
