@@ -46,6 +46,7 @@ module.exports = {
         'harbor-proxy-registry',
         'litellm-mcp-server',
         'litellm-model',
+        'litellm-virtual-key',
         'minio-bucket',
         // workspaces
         'authentik',

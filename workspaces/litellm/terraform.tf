@@ -19,6 +19,13 @@ terraform {
       source  = "ncecere/litellm"
       version = "2.0.1"
     }
+    # Used only by modules/litellm-virtual-key's object_permission REST seam — see the
+    # comment at the top of that module's object-permission.tf for why it's needed and
+    # how to remove it once ncecere/litellm gains native object_permission support.
+    terracurl = {
+      source  = "devops-rob/terracurl"
+      version = "2.11.0"
+    }
   }
 }
 
@@ -29,4 +36,7 @@ provider "bitwarden" {
 }
 
 provider "litellm" {
+}
+
+provider "terracurl" {
 }
