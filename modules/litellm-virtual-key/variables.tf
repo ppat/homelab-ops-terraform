@@ -133,9 +133,51 @@ variable "blocked" {
 }
 
 variable "metadata" {
-  description = "Metadata attached to the key. Values are strings, but the provider (metadata_helpers.go: convertMetadataToNative) treats any value starting with '[' or '{' as JSON and parses it back to a native type before sending to the API — so a live value that's an object or array (e.g. LiteLLM's own tag_rpm_limit: {}) must be given here as jsonencode(...), not a bare string, to round-trip correctly. jsonencode(false)/jsonencode(true) work the same way for booleans (e.g. throttle_on_budget_exceeded)."
+  # DEFAULT MUST BE `null`, NOT `{}` — measured against the sandbox (namespace litellm-audit,
+  # kube context sandbox-talos, real ncecere/litellm 2.0.1 provider), 2026-08-11, reproducing
+  # the openwebui production import verbatim:
+  #
+  #   `terraform import` never populates litellm_key's Optional+Computed attributes beyond
+  #   id/key (ImportState only sets those two — resource_key.go:397-403); the subsequent Read
+  #   leaves every other attribute at its zero value (null) unless the live key already has a
+  #   non-empty value for it (readKey's `else if !data.X.IsNull()` reset-to-empty branches never
+  #   fire on a freshly-imported, still-null field — resource_key.go:805-1028). So a key whose
+  #   live metadata is the (API-rendered) empty object `{}` lands in state as `metadata = null`,
+  #   not `metadata = {}` — same "omitted vs. explicit-empty are indistinguishable after the
+  #   fact" ambiguity as the `models` footgun below, and resolved the same way: `null` is the
+  #   config value that reproduces "never touched," `{}` is a real, different value.
+  #
+  #   None of litellm_key's Optional+Computed attributes carry a `UseStateForUnknown` plan
+  #   modifier (checked against the provider's schema.go — only `id`, `key`, and `key_alias`
+  #   do). terraform-plugin-framework's default behavior for a Computed attribute with no
+  #   config value is to plan it as Unknown, but ONLY once the resource is undergoing an update
+  #   at all — a config that introduces zero genuine diff against imported (mostly-null) state
+  #   plans clean with nothing marked unknown. `metadata = {}` here (a known, non-null empty
+  #   map) is itself exactly such a genuine diff against the imported `null` state — and that
+  #   one spurious diff was enough to flip the ENTIRE resource into "update" mode, cascading
+  #   `(known after apply)` onto every other untouched attribute (models, tpm_limit, rpm_limit,
+  #   max_budget, aliases, config, permissions, guardrails, prompts, tags, blocked, ...) even
+  #   though none of them were actually changing. Reproduced exactly (byte-for-byte identical
+  #   plan output shape to the production incident) with `metadata = {}`; switching this default
+  #   to `null` produced a genuine "No changes" plan directly after import, no apply needed.
+  #
+  #   Apply was ALSO verified safe despite the `(known after apply)` noise, independently of
+  #   this fix: buildKeyRequest (resource_key.go:478-684) guards every field with
+  #   `!data.X.IsUnknown()` before including it in the POST /key/update body, so Unknown fields
+  #   are simply omitted from the wire request rather than sent as null/empty — and LiteLLM's
+  #   /key/update treats an omitted field as "leave unchanged" (confirmed via GET /key/info
+  #   diffed before/after: only the one deliberately-configured field changed, nothing else was
+  #   reset). But "safe" isn't the same as "not a permanent diff", which this default fixes.
+  #
+  # A future consumer that genuinely needs metadata (openclaw/n8n today) still sets this to a
+  # real non-null map, transcribed verbatim from `GET /key/info` — see key-openclaw.tf/
+  # key-n8n.tf. Empty stays the correct default for a newly-created sixth consumer too: it's
+  # what a fresh `litellm_key` with no metadata argument reads back as, so there's nothing
+  # inconsistent about a new key defaulting to the same "untouched" representation as the five
+  # adopted ones.
+  description = "Metadata attached to the key. Values are strings, but the provider (metadata_helpers.go: convertMetadataToNative) treats any value starting with '[' or '{' as JSON and parses it back to a native type before sending to the API — so a live value that's an object or array (e.g. LiteLLM's own tag_rpm_limit: {}) must be given here as jsonencode(...), not a bare string, to round-trip correctly. jsonencode(false)/jsonencode(true) work the same way for booleans (e.g. throttle_on_budget_exceeded). Defaults to null, not {} — see the comment above for why an explicit empty map is a real (if trivial) diff against a freshly-imported key's state, not a no-op."
   type        = map(string)
-  default     = {}
+  default     = null
 }
 
 variable "tags" {
@@ -154,6 +196,30 @@ variable "bitwarden_project_id" {
   description = "Bitwarden Secrets project under which to save this key's plaintext token"
   type        = string
   sensitive   = true
+}
+
+variable "note" {
+  # DEFAULT MUST BE "", NOT A DESCRIPTIVE TEMPLATE STRING — unlike litellm_key's
+  # Optional+Computed attributes above, bitwarden_secret's `note` is schema-REQUIRED
+  # (`terraform providers schema -json`: `"note": {"required": true, "type": "string"}`, no
+  # `computed` key at all), so it can never be left null/omitted — every apply, import
+  # included, must send some string. The five secrets this module adopts already exist with an
+  # empty note (confirmed via `bws secret list` against the real Bitwarden project, 2026-08-10:
+  # every `apikey_litellm_*` entry's note is ""), so an explicit descriptive default here — the
+  # module used to hardcode "LiteLLM virtual key (sk-...) for ${var.consumer}" — is a real,
+  # permanent diff against every one of them post-import, same failure shape as the
+  # metadata/models defaults above but on a required rather than a computed attribute (so it
+  # shows as a genuine `~ note = "" -> "..."` in-place update every single plan, not a
+  # transient known-after-apply cascade). The owner's standing instruction is to reproduce live
+  # state, not improve on it, so the default is empty to match.
+  #
+  # A newly-created sixth consumer reads back the same way: a fresh bitwarden_secret with no
+  # note argument stores "" too, so defaulting to empty here isn't an inconsistency between
+  # adopted and newly-created keys — it's the same "untouched" representation either way. A
+  # caller who wants a descriptive note on a new key can still pass one explicitly.
+  description = "Note attached to the Bitwarden secret. Required by the bitwarden_secret resource schema (unlike litellm_key's attributes, this cannot be left null), so it always needs a value — defaults to empty to match the five keys imported from hand-minted Bitwarden secrets (confirmed via bws secret list). Pass an explicit string for a new consumer that wants a descriptive note; empty remains a valid, consistent choice there too."
+  type        = string
+  default     = ""
 }
 
 # --- object_permission REST seam inputs (see object-permission.tf) ---

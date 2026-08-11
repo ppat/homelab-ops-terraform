@@ -26,6 +26,19 @@ locals {
   # So `[]` is the API's rendering of "no restriction", but `null` is the one Terraform
   # config value that reproduces "this key's models field has never been touched" without
   # asserting a value the live key doesn't actually have set.
+  #
+  # CAVEAT DISCOVERED DURING THE FIRST REAL IMPORT (2026-08-11, openwebui): this measurement
+  # only proves `models = null` plans clean in ISOLATION, against a bare resource with nothing
+  # else set. It does NOT by itself guarantee the whole `litellm_key.this` resource plans
+  # clean — if ANY other attribute has a genuine diff against the freshly-imported (mostly
+  # null) state, terraform-plugin-framework's default handling for Computed attributes with no
+  # `UseStateForUnknown` plan modifier (none of litellm_key's have one, except id/key/key_alias)
+  # marks EVERY other unconfigured Computed attribute — including `models`, even though it
+  # genuinely matches state — as `(known after apply)`. This actually happened: the module's
+  # old `metadata` default (`{}`, a known non-null empty map) differed from the imported key's
+  # `metadata = null` state and was enough to trigger the cascade on its own. See the comment
+  # on `var.metadata` in variables.tf for the full measurement. Moral: a clean plan requires
+  # EVERY attribute set in config to match live state exactly, not just `models`.
   resolved_models = var.unrestricted_models ? null : var.models
 }
 

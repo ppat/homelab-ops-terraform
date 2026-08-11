@@ -7,5 +7,8 @@ resource "bitwarden_secret" "apikey" {
   key        = "apikey_litellm_${replace(var.consumer, "/[^a-zA-Z0-9]/", "")}"
   value      = litellm_key.this.key
   project_id = var.bitwarden_project_id
-  note       = "LiteLLM virtual key (sk-...) for ${var.consumer}"
+  # Empty by default, not a descriptive template — see the comment on var.note for why a
+  # non-empty default was a permanent diff against the five adopted secrets, all of which
+  # already have an empty note live.
+  note = var.note
 }
