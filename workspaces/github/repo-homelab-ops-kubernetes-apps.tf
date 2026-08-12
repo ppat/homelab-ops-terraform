@@ -55,6 +55,7 @@ module "repo_homelab_ops_kubernetes_apps" {
     "detect-changes / detect-changed-files",
     "pre-commit / pre-commit"
   ]
+  required_status_checks_strict = false
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
     DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value

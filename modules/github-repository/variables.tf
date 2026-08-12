@@ -47,6 +47,11 @@ variable "required_status_checks" {
   default = []
 }
 
+variable "required_status_checks_strict" {
+  type    = bool
+  default = true
+}
+
 variable "topics" {
   type    = list(string)
   default = []
