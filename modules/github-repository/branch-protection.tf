@@ -10,7 +10,7 @@ resource "github_branch_protection" "main" {
   require_signed_commits          = var.require_signed_commits
 
   required_status_checks {
-    strict   = true
+    strict   = var.required_status_checks_strict
     contexts = var.required_status_checks
   }
 }
