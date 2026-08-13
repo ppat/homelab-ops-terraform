@@ -41,6 +41,7 @@ module.exports = {
         // modules
         'authentik-oauth2-application',
         'authentik-proxy-application',
+        'garage-bucket',
         'github-repository',
         'harbor-local-registry',
         'harbor-proxy-registry',
@@ -50,6 +51,7 @@ module.exports = {
         'minio-bucket',
         // workspaces
         'authentik',
+        'garage-homelab',
         'github',
         'harbor',
         'litellm',

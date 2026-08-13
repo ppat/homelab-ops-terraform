@@ -17,6 +17,7 @@ state/backend.
 | Name | Description |
 |------|-------------|
 | [`authentik`](workspaces/authentik) | Authentik SSO — applications, providers, and outposts |
+| [`garage-homelab`](workspaces/garage-homelab) | Garage instance on homelab infra — Loki, Authentik media, and Terraform state buckets |
 | [`github`](workspaces/github) | GitHub org repository configuration |
 | [`harbor`](workspaces/harbor) | Harbor container registry — auth, system config, robot accounts |
 | [`litellm`](workspaces/litellm) | LiteLLM proxy — models, remote MCP servers, and virtual keys |
@@ -32,6 +33,7 @@ paths.
 |------|-------------|
 | [`authentik-oauth2-application`](modules/authentik-oauth2-application) | Authentik OAuth2 provider + application + group binding |
 | [`authentik-proxy-application`](modules/authentik-proxy-application) | Authentik proxy provider + application + group binding |
+| [`garage-bucket`](modules/garage-bucket) | Garage bucket with key, permissions, and lifecycle rules |
 | [`github-repository`](modules/github-repository) | GitHub repository, branch protection, actions, environments |
 | [`harbor-local-registry`](modules/harbor-local-registry) | Harbor local (push) registry with retention policy |
 | [`harbor-proxy-registry`](modules/harbor-proxy-registry) | Harbor pull-through proxy registry with retention policy |
