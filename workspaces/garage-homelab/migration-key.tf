@@ -59,9 +59,9 @@ resource "garage_bucket_permission" "migration_terraform_state" {
 # Bitwarden entry names are the owner's own, created by hand ahead of this
 # PR (cluster_homelab_garage_migration_accesskeyid/_secretkey) -- a
 # deliberate departure from modules/garage-bucket/bitwarden.tf's usual
-# bucket_<name>_accesskey/_secretkey convention, since this key isn't scoped
-# to one bucket and the owner named it first. clusters#910's migration Job
-# envsubsts GARAGE_ACCESS_KEY/GARAGE_SECRET_KEY from these two entries.
+# bucket_garage_<name>_accesskey/_secretkey convention, since this key isn't
+# scoped to one bucket and the owner named it first. clusters#910's migration
+# Job envsubsts GARAGE_ACCESS_KEY/GARAGE_SECRET_KEY from these two entries.
 #
 # First-apply note: Garage, not Bitwarden, mints the key ID/secret (see
 # garage_key.migration above), so whatever the owner originally typed into
