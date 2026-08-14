@@ -16,8 +16,10 @@
 # the real API schema ({bucketId, globalAlias}); do not copy it.
 #
 # Why a second alias at all: this bucket's real name (var.bucket_name) is what
-# every consumer and the Bitwarden secret keys in bitwarden.tf are keyed on.
-# Garage's [s3_web] website endpoint resolves which bucket to serve purely
+# every consumer resolves the bucket by (modules/garage-key's own Bitwarden
+# entries are keyed on the owning key's name, not this one -- keys and buckets
+# have independent lifetimes, see that module for why). Garage's [s3_web]
+# website endpoint resolves which bucket to serve purely
 # from the Host header matching one of the bucket's global aliases -- and this
 # estate's garage module
 # (infrastructure/subsystems/storage-core/garage in homelab-ops-kubernetes-apps)

@@ -42,6 +42,7 @@ module.exports = {
         'authentik-oauth2-application',
         'authentik-proxy-application',
         'garage-bucket',
+        'garage-key',
         'github-repository',
         'harbor-local-registry',
         'harbor-proxy-registry',

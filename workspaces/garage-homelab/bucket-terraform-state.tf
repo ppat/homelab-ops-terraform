@@ -14,8 +14,20 @@ module "terraform_state" {
   source = "../../modules/garage-bucket"
 
   bucket_name           = "${local.bucket_prefix}-terraform-state"
-  owner_key_name        = "terraform"
-  bitwarden_project_id  = var.bitwarden_project_id
   garage_admin_endpoint = var.garage_admin_endpoint
   garage_admin_token    = var.garage_admin_token
+}
+
+module "terraform_state_key" {
+  source = "../../modules/garage-key"
+
+  key_name = "terraform"
+  buckets = {
+    terraform_state = {
+      bucket_id = module.terraform_state.bucket.id
+      read      = true
+      write     = true
+    }
+  }
+  bitwarden_project_id = var.bitwarden_project_id
 }

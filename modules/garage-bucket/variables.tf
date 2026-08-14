@@ -1,16 +1,5 @@
-variable "bitwarden_project_id" {
-  description = "Bitwarden Secrets project under which to save the owner key's access and secret keys"
-  type        = string
-  sensitive   = true
-}
-
 variable "bucket_name" {
   description = "Name of the Garage bucket to create (its global alias)"
-  type        = string
-}
-
-variable "owner_key_name" {
-  description = "Human-friendly name for the Garage access key that owns this bucket"
   type        = string
 }
 
