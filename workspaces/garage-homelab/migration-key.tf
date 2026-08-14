@@ -1,7 +1,7 @@
 # ============================================================================
 # TEMPORARY -- migration-only credential. DELETE THIS FILE WHOLESALE (and
 # `terraform apply`) once the MinIO-to-Garage bucket migration is complete
-# for all four buckets below (clusters#910's runbook, OPERATIONS.md
+# for all three buckets below (clusters#910's runbook, OPERATIONS.md
 # "Runbook: migrate MinIO buckets to Garage"). Leaving it in place afterward
 # is exactly the kind of standing broad-write privilege this project already
 # rejected once, in dropping the Garage operator over its own cluster-wide
@@ -10,9 +10,9 @@
 # ============================================================================
 #
 # Lives at the workspace level, not inside modules/garage-bucket: it spans
-# all four buckets below rather than belonging to any one of them, and the
+# all three buckets below rather than belonging to any one of them, and the
 # module's own garage_bucket_permission.owner is the wrong shape for this
-# anyway (owner, not read+write; one bucket, not four).
+# anyway (owner, not read+write; one bucket, not three).
 #
 # read+write, never owner -- same reasoning as modules/garage-bucket/key.tf's
 # owner permission, checked against what clusters#910's scripts actually do
@@ -37,13 +37,6 @@ resource "garage_bucket_permission" "migration_authentik_media" {
 
 resource "garage_bucket_permission" "migration_loki_chunks" {
   bucket_id     = module.loki_chunks.bucket.id
-  access_key_id = garage_key.migration.id
-  read          = true
-  write         = true
-}
-
-resource "garage_bucket_permission" "migration_loki_ruler" {
-  bucket_id     = module.loki_ruler.bucket.id
   access_key_id = garage_key.migration.id
   read          = true
   write         = true
@@ -78,12 +71,12 @@ resource "bitwarden_secret" "migration_accesskeyid" {
   key        = "cluster_homelab_garage_migration_accesskeyid"
   value      = garage_key.migration.id
   project_id = var.bitwarden_project_id
-  note       = "MinIO->Garage migration key's access key ID -- read+write on homelab-loki-chunks, homelab-loki-ruler, homelab-authentik-media, homelab-terraform-state. Temporary: retire per this file's own top-of-file comment once the migration is done."
+  note       = "MinIO->Garage migration key's access key ID -- read+write on homelab-loki-chunks, homelab-authentik-media, homelab-terraform-state. Temporary: retire per this file's own top-of-file comment once the migration is done."
 }
 
 resource "bitwarden_secret" "migration_secretkey" {
   key        = "cluster_homelab_garage_migration_secretkey"
   value      = garage_key.migration.secret_access_key
   project_id = var.bitwarden_project_id
-  note       = "MinIO->Garage migration key's secret access key -- read+write on homelab-loki-chunks, homelab-loki-ruler, homelab-authentik-media, homelab-terraform-state. Temporary: retire per this file's own top-of-file comment once the migration is done."
+  note       = "MinIO->Garage migration key's secret access key -- read+write on homelab-loki-chunks, homelab-authentik-media, homelab-terraform-state. Temporary: retire per this file's own top-of-file comment once the migration is done."
 }

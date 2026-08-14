@@ -1,12 +1,10 @@
 # Bridges modules/garage-bucket's former garage_key/garage_bucket_permission/
 # bitwarden_secret resources (owned access-key creation, bucket grants, and
 # Bitwarden write-back moved out into modules/garage-key -- see that module
-# and the bucket-*.tf/loki.tf files above for why) onto their new addresses,
-# so `terraform apply` updates existing state in place instead of destroying
-# and recreating three of the four live keys -- one of which
-# (terraform_state_key) backs every workspace's own state-backend
-# credentials. The fourth (loki_ruler's) is deliberately NOT bridged -- see
-# the note at the bottom of this file.
+# and the bucket-*.tf files above for why) onto their new addresses, so
+# `terraform apply` updates existing state in place instead of destroying
+# and recreating three live keys -- one of which (terraform_state_key)
+# backs every workspace's own state-backend credentials.
 #
 # These live here, in the common parent workspace, not inside either module:
 # per Terraform 1.6.6's own refactoring.mdx, "a module may only make moved
@@ -45,9 +43,9 @@ moved {
   to   = module.authentik_media_key.bitwarden_secret.secretkey
 }
 
-# loki_chunks's key moves and becomes the shared key -- key_name stays the
-# byte-identical "loki" it already had (see loki.tf's loki_key comment for
-# why it's now granted on both buckets, not just this one).
+# loki_chunks's key moves and keeps its byte-identical "loki" key_name (see
+# bucket-loki-chunks.tf's loki_key comment for why that name doesn't match
+# this module's own naming convention).
 moved {
   from = module.loki_chunks.garage_key.owner
   to   = module.loki_key.garage_key.this
@@ -67,21 +65,6 @@ moved {
   from = module.loki_chunks.bitwarden_secret.bucket_owner_secretkey
   to   = module.loki_key.bitwarden_secret.secretkey
 }
-
-# loki_ruler's own key, its permission, and its two Bitwarden entries are
-# deliberately UNBRIDGED -- no moved block for
-# module.loki_ruler.garage_key.owner, .garage_bucket_permission.owner, or
-# either .bitwarden_secret.bucket_owner_*key. `terraform plan` will show all
-# four as destroyed. That's intended, not an oversight: apps#3650 moved
-# Loki's ruler to local file-based rule delivery (rulerConfig.storage.type:
-# local), so this key backed nothing live even before this PR, and
-# loki_key above now grants the surviving chunks key read+write on
-# homelab-loki-ruler instead -- the shape modules/garage-bucket's
-# one-key-per-bucket design could never express (ppat/homelab-ops-terraform#293).
-# Destroying an unused key costs nothing; the zero-destroy bar this file
-# otherwise holds every other resource to is specifically about not
-# rotating a credential something depends on, and nothing depends on this
-# one.
 
 moved {
   from = module.terraform_state.garage_key.owner
