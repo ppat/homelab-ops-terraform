@@ -35,9 +35,6 @@ terraform {
 }
 
 provider "bitwarden" {
-  experimental {
-    embedded_client = true
-  }
 }
 
 # No explicit endpoint/token args: the garage provider reads GARAGE_ENDPOINT /

@@ -5,6 +5,7 @@ provider "registry.terraform.io/devops-rob/terracurl" {
   version     = "2.11.0"
   constraints = ">= 2.0.0, 2.11.0"
   hashes = [
+    "h1:4V6XEqX++O1s+p5wXNFEVDv3VexC+TBuwVkxHwPrp+Y=",
     "h1:y+qSMDxz3kBa4En+wrmVoG4tCFBDvtLgM3TtwpEEskA=",
     "zh:14c958b8646905eccf57ac8247ecbb79511b2ad08bedbeceee719b68b8b984a7",
     "zh:2effadc4cc087991e2b2df6bb559a2df9ea5221fe19cb882da83f87ae107a48d",
@@ -28,6 +29,7 @@ provider "registry.terraform.io/jkossis/garage" {
   constraints = ">= 1.0.0, 1.0.5"
   hashes = [
     "h1:89iUT/l7xE/8vzIPbz2axzNZfZQoVShmQvxfmDdQGjg=",
+    "h1:BlwKfLYTornZUeki3KxGYrE8Pluoh3eIELEZ+bm6Pj0=",
     "zh:16f3198cd97ced926da49bca8e986ea07f1f9d15544d4a89ca4c5b9cdea79ead",
     "zh:18684202936e98251731b1b35c92284999a22cf673eb175316f87a1397bb4842",
     "zh:270c5e4ea0e15655ad39a49be7c33e36da48063ef1ad50dc24e99be4fdeff5a2",
@@ -50,6 +52,7 @@ provider "registry.terraform.io/maxlaverse/bitwarden" {
   constraints = ">= 0.13.0, 0.17.6"
   hashes = [
     "h1:Rke+62Qj1g/4rR9HyyoR067z+dfPQaPTAgc7nZby+tI=",
+    "h1:x7RnUzrvW3+jHVplAQVuWTJmxGPUbXylFubDlp8wHlI=",
     "zh:01acd6e3da51973cb1327859ba61282711af92d2efa51bf4613bcdb9a15f2443",
     "zh:375f1574dd11eca89e4ff9b99739af87b5f04d2cb6e99728c62c32ce24162556",
     "zh:5b176aa6e86a16010c60b6e4d0e0717b50a3ea0f935f6763f9fe392ec5290fc9",
