@@ -46,17 +46,22 @@ provider "bitwarden" {
 # garage_admin_token variables below carry the SAME values into each module
 # call's REST seams, which have no such implicit env var support.
 #
-# Reachability: Garage's admin API (port 3903 on the `garage` Service, namespace
-# garage) has no Ingress today -- only its S3 (3900) and website (3902) ports do
-# (infrastructure/subsystems/storage-core/garage in homelab-ops-kubernetes-apps).
-# That's a deliberate choice in that module (full bucket/key CRUD is a bigger
-# thing to expose publicly than object storage itself), not an oversight here.
-# Reach it via a port-forward before running Terraform:
-#   kubectl --context <homelab context> -n garage port-forward svc/garage 3903:3903
-#   export GARAGE_ENDPOINT="http://localhost:3903"
+# Reachability: the admin API (port 3903 on the `garage` Service, namespace
+# garage) is reached through the `garage-admin` Ingress
+# (infrastructure/subsystems/storage-core/garage/ingress-admin.yaml in
+# homelab-ops-kubernetes-apps) -- no port-forward needed:
+#   export GARAGE_ENDPOINT="https://garage-admin.${domain_name}"
 #   export GARAGE_TOKEN="<admin-token>"        # Bitwarden key: cluster_homelab_garage_admin_token
 #   export TF_VAR_garage_admin_endpoint="$GARAGE_ENDPOINT"
 #   export TF_VAR_garage_admin_token="$GARAGE_TOKEN"
+#
+# That Ingress deliberately routes only the /v2 path, not /. Every call the
+# garage provider and this workspace's terracurl REST seams
+# (modules/garage-bucket's lifecycle.tf/alias.tf) make is a /v2/... endpoint,
+# so this workspace never loses reachability to anything it needs. Widening
+# the Ingress to `path: /` would also publish Garage's unauthenticated
+# /metrics and /health there -- the /v2 scoping is what keeps those off this
+# hostname, not an oversight to "fix" by broadening it.
 provider "garage" {
 }
 

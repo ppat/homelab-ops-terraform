@@ -48,7 +48,7 @@ variable "anonymous_read_hostname" {
 # --- REST seam inputs (lifecycle.tf, alias.tf) ---
 
 variable "garage_admin_endpoint" {
-  description = "Base URL of the Garage Admin API (e.g. http://localhost:3903 via a kubectl port-forward -- see the workspace's terraform.tf for why), used only by the lifecycle/web-alias REST seams. The garage provider itself gets this from the GARAGE_ENDPOINT env var; terracurl has no such implicit config and needs it passed explicitly."
+  description = "Base URL of the Garage Admin API -- reachable via the garage-admin Ingress; see the workspace's terraform.tf for the host and how to set this, and why only /v2 is exposed. Used only by the lifecycle/web-alias REST seams. The garage provider itself gets this from the GARAGE_ENDPOINT env var; terracurl has no such implicit config and needs it passed explicitly."
   type        = string
 }
 
