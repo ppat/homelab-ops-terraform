@@ -28,14 +28,22 @@ resource "garage_bucket" "bucket" {
   # every bucket this module provisions, not just the one being destroyed --
   # keep it short.
   #
-  # What this does NOT catch: `terraform state rm` followed by a fresh
-  # create, a `-target`ed destroy, direct Garage admin-API deletion, or this
-  # resource/module call being deleted from the calling workspace outright --
-  # verified empirically that with the resource removed from config,
-  # `terraform plan` destroys it with no error. prevent_destroy only holds
-  # "as long as the argument remains set to true in the configuration for
-  # that resource" (Terraform's own docs); once the resource has no
-  # configuration at all, there's nothing left to hold it.
+  # MOST IMPORTANT GAP: this does NOT catch the module call for a bucket
+  # (e.g. this whole `module "authentik_media" { ... }` block) being deleted
+  # from the calling workspace -- verified empirically on Terraform 1.6.6,
+  # in a throwaway config, that removing a prevent_destroy-guarded resource
+  # from configuration entirely makes `terraform plan` destroy it with no
+  # error at all (a plain "not in configuration" destroy, exit 0). That's
+  # arguably the single most likely real way a bucket here gets deleted, and
+  # this guard does not stop it. prevent_destroy only holds "as long as the
+  # argument remains set to true in the configuration for that resource"
+  # (Terraform's own docs) -- once the resource has no configuration at all,
+  # there's nothing left to hold it.
+  #
+  # Also does not catch: `terraform state rm` followed by a fresh create, a
+  # `-target`ed destroy that excludes this resource from the plan's scope,
+  # or direct Garage admin-API deletion -- all bypass Terraform's plan
+  # entirely.
   lifecycle {
     prevent_destroy = true
   }
