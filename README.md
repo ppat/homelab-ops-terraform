@@ -33,7 +33,7 @@ paths.
 |------|-------------|
 | [`authentik-oauth2-application`](modules/authentik-oauth2-application) | Authentik OAuth2 provider + application + group binding |
 | [`authentik-proxy-application`](modules/authentik-proxy-application) | Authentik proxy provider + application + group binding |
-| [`garage-bucket`](modules/garage-bucket) | Garage bucket with lifecycle rules and web-alias support |
+| [`garage-bucket`](modules/garage-bucket) | Garage bucket with lifecycle rules and public-read website support |
 | [`garage-key`](modules/garage-key) | Garage access key, bucket permissions, and Bitwarden write-back |
 | [`github-repository`](modules/github-repository) | GitHub repository, branch protection, actions, environments |
 | [`harbor-local-registry`](modules/harbor-local-registry) | Harbor local (push) registry with retention policy |

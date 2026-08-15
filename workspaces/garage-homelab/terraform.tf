@@ -24,9 +24,9 @@ terraform {
       source  = "jkossis/garage"
       version = "1.0.5"
     }
-    # Used only by modules/garage-bucket's lifecycle/web-alias REST seams --
-    # see the comments at the top of that module's lifecycle.tf/alias.tf for
-    # why and how to remove it once jkossis/garage gains native support.
+    # Used only by modules/garage-bucket's lifecycle REST seam -- see the
+    # comment at the top of that module's lifecycle.tf for why and how to
+    # remove it once jkossis/garage gains native support.
     terracurl = {
       source  = "devops-rob/terracurl"
       version = "2.11.0"
@@ -52,10 +52,18 @@ provider "bitwarden" {
 #   export TF_VAR_garage_admin_endpoint="$GARAGE_ENDPOINT"
 #   export TF_VAR_garage_admin_token="$GARAGE_TOKEN"
 #
+# garage-admin.${domain_name} is a planned rename to garage.${domain_name}
+# (settled admin/s3/web endpoint-naming plan, done for admin first in
+# ppat/homelab-ops-kubernetes-apps#3681 since unlike s3 it has no dependency).
+# Still the OLD host above until that change reaches this cluster --
+# release-please cuts an infra-storage-core release and the clusters repo
+# bumps its ref.tag, neither of which has happened yet. Check #3681 for
+# current state before assuming either name.
+#
 # That Ingress deliberately routes only the /v2 path, not /. Every call the
-# garage provider and this workspace's terracurl REST seams
-# (modules/garage-bucket's lifecycle.tf/alias.tf) make is a /v2/... endpoint,
-# so this workspace never loses reachability to anything it needs. Widening
+# garage provider and this workspace's terracurl REST seam
+# (modules/garage-bucket's lifecycle.tf) make is a /v2/... endpoint, so this
+# workspace never loses reachability to anything it needs. Widening
 # the Ingress to `path: /` would also publish Garage's unauthenticated
 # /metrics and /health there -- the /v2 scoping is what keeps those off this
 # hostname, not an oversight to "fix" by broadening it.

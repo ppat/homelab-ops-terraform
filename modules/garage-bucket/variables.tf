@@ -9,40 +9,38 @@ variable "object_expiration_days" {
   default     = null
 }
 
-variable "anonymous_read_hostname" {
+variable "anonymous_read_enabled" {
   description = <<-EOT
-    When set, enables anonymous public read for this bucket via Garage's [s3_web]
+    When true, enables anonymous public read for this bucket via Garage's [s3_web]
     website endpoint (Garage has no S3 bucket-policy support, unlike MinIO -- this
-    is the only mechanism it offers) and adds this value as a SECOND global alias
-    on the bucket, alongside bucket_name -- implemented via a REST seam, not the
-    garage provider itself, see alias.tf for why. Must exactly match the Host
-    header Garage's web endpoint will actually receive for this bucket to be
-    reachable: in this estate that's the storage-core module's own web Ingress
-    host (garage-web.$${domain_name}).
+    is the only mechanism it offers). Reachability is automatic once enabled:
+    Garage's [s3_web] endpoint resolves any "$${bucket_name}.<root_domain>" Host
+    header to $${bucket_name} by suffix match against root_domain regardless of
+    a leading dot (Garage strips it before comparing) -- so it lands straight on
+    this bucket's own existing global_alias (bucket_name). No second alias or
+    per-bucket hostname needs to be configured here; that suffix matching isn't
+    new or apps-repo-gated, it's how [s3_web] already works. What was actually
+    missing, and is added by ppat/homelab-ops-kubernetes-apps#3681, is purely
+    Kubernetes-side: an Ingress rule that routes the wildcard host at all, and a
+    wildcard certificate for it (the default cert covers only one label). See
+    ppat/homelab-ops-kubernetes-apps#3652 for where this limitation was first
+    recorded.
 
-    At most one bucket across the whole Garage instance can use this at a time --
-    a deliberate, current choice in the apps-repo module's own [s3_web]/Ingress
-    configuration, not a property of this variable, this module, or Terraform,
-    and not a Garage constraint either. It's liftable: see
-    ppat/homelab-ops-kubernetes-apps#3652 for what produces the limit today and
-    what changing it would take. Don't look for the fix here.
-
-    Null (the default) disables website access entirely, the only valid value for
-    every bucket that doesn't need public reads.
+    False (the default) disables website access entirely.
   EOT
-  type        = string
-  default     = null
+  type        = bool
+  default     = false
 }
 
-# --- REST seam inputs (lifecycle.tf, alias.tf) ---
+# --- REST seam inputs (lifecycle.tf) ---
 
 variable "garage_admin_endpoint" {
-  description = "Base URL of the Garage Admin API -- reachable via the garage-admin Ingress; see the workspace's terraform.tf for the host and how to set this, and why only /v2 is exposed. Used only by the lifecycle/web-alias REST seams. The garage provider itself gets this from the GARAGE_ENDPOINT env var; terracurl has no such implicit config and needs it passed explicitly."
+  description = "Base URL of the Garage Admin API -- reachable via the garage-admin Ingress; see the workspace's terraform.tf for the current host (a planned rename to garage.$${domain_name} is tracked in ppat/homelab-ops-kubernetes-apps#3681, not live yet), how to set this, and why only /v2 is exposed. Used only by the lifecycle REST seam. The garage provider itself gets this from the GARAGE_ENDPOINT env var; terracurl has no such implicit config and needs it passed explicitly."
   type        = string
 }
 
 variable "garage_admin_token" {
-  description = "Garage admin API bearer token, used only by the lifecycle/web-alias REST seams to authenticate their direct admin API calls. The garage provider itself gets this from the GARAGE_TOKEN env var."
+  description = "Garage admin API bearer token, used only by the lifecycle REST seam to authenticate its direct admin API calls. The garage provider itself gets this from the GARAGE_TOKEN env var."
   type        = string
   sensitive   = true
 }
