@@ -1,10 +1,10 @@
 module "authentik_media" {
   source = "../../modules/garage-bucket"
 
-  bucket_name             = "${local.bucket_prefix}-authentik-media"
-  anonymous_read_hostname = var.garage_web_hostname
-  garage_admin_endpoint   = var.garage_admin_endpoint
-  garage_admin_token      = var.garage_admin_token
+  bucket_name            = "${local.bucket_prefix}-authentik-media"
+  anonymous_read_enabled = true
+  garage_admin_endpoint  = var.garage_admin_endpoint
+  garage_admin_token     = var.garage_admin_token
 }
 
 module "authentik_media_key" {
