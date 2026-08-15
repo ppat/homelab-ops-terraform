@@ -44,7 +44,28 @@ resource "garage_bucket" "bucket" {
   # `-target`ed destroy that excludes this resource from the plan's scope,
   # or direct Garage admin-API deletion -- all bypass Terraform's plan
   # entirely.
+
+  # website_error_document is never set in this module's config, so it
+  # resolves to null -- but the provider's Read() maps Garage's
+  # errorDocument: null back to "" in state, so config and state disagree
+  # forever, on every apply, for every website-enabled bucket
+  # (terraform show -json, observed and recurring after an apply that
+  # already "fixed" it):
+  #   before: { "website_error_document": "",   "website_index_document": "index.html" }
+  #   after:  { "website_error_document": null, "website_index_document": "index.html" }
+  # This is provider empty-string-vs-null normalization, not this module
+  # declining to manage a real setting -- there's no error-document feature
+  # being withheld. ignore_changes states that truth. Left unhandled, a plan
+  # that never comes back clean is exactly the training effect
+  # prevent_destroy above exists to counter: an operator who's used to
+  # skimming past a permanent, meaningless diff is the operator who skims
+  # past the destroy line too.
+  #
+  # If a real error document is ever wanted for a bucket: remove
+  # website_error_document from ignore_changes below first -- otherwise
+  # whatever value config sets will be silently ignored.
   lifecycle {
     prevent_destroy = true
+    ignore_changes  = [website_error_document]
   }
 }
