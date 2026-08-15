@@ -35,7 +35,7 @@ variable "anonymous_read_enabled" {
 # --- REST seam inputs (lifecycle.tf) ---
 
 variable "garage_admin_endpoint" {
-  description = "Base URL of the Garage Admin API -- reachable via the garage-admin Ingress; see the workspace's terraform.tf for the host and how to set this, and why only /v2 is exposed. Used only by the lifecycle REST seam. The garage provider itself gets this from the GARAGE_ENDPOINT env var; terracurl has no such implicit config and needs it passed explicitly."
+  description = "Base URL of the Garage Admin API -- reachable via the garage-admin Ingress; see the workspace's terraform.tf for the current host (a planned rename to garage.$${domain_name} is tracked in ppat/homelab-ops-kubernetes-apps#3681, not live yet), how to set this, and why only /v2 is exposed. Used only by the lifecycle REST seam. The garage provider itself gets this from the GARAGE_ENDPOINT env var; terracurl has no such implicit config and needs it passed explicitly."
   type        = string
 }
 
