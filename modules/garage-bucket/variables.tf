@@ -14,12 +14,17 @@ variable "anonymous_read_enabled" {
     When true, enables anonymous public read for this bucket via Garage's [s3_web]
     website endpoint (Garage has no S3 bucket-policy support, unlike MinIO -- this
     is the only mechanism it offers). Reachability is automatic once enabled:
-    Garage's [s3_web] root_domain is a dotted suffix, so it resolves any
-    "$${bucket_name}.<root_domain>" Host header straight to this bucket's own
-    global_alias (bucket_name) -- no second alias or per-bucket hostname needs
-    to be configured here (see ppat/homelab-ops-kubernetes-apps#3652 for the
-    apps-repo module change that makes root_domain a suffix match, and its
-    wildcard DNS/cert).
+    Garage's [s3_web] endpoint resolves any "$${bucket_name}.<root_domain>" Host
+    header to $${bucket_name} by suffix match against root_domain regardless of
+    a leading dot (Garage strips it before comparing) -- so it lands straight on
+    this bucket's own existing global_alias (bucket_name). No second alias or
+    per-bucket hostname needs to be configured here; that suffix matching isn't
+    new or apps-repo-gated, it's how [s3_web] already works. What was actually
+    missing, and is added by ppat/homelab-ops-kubernetes-apps#3681, is purely
+    Kubernetes-side: an Ingress rule that routes the wildcard host at all, and a
+    wildcard certificate for it (the default cert covers only one label). See
+    ppat/homelab-ops-kubernetes-apps#3652 for where this limitation was first
+    recorded.
 
     False (the default) disables website access entirely.
   EOT
