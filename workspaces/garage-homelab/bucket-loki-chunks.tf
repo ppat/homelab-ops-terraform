@@ -1,9 +1,27 @@
-# No object_expiration_days on loki_chunks: Loki's chunk retention is presumably
-# enforced by Loki's own compactor (retention_period in its config), not S3/Garage
-# lifecycle rules -- this workspace doesn't have visibility into that config to
-# assert a matching number, and the MinIO original of this bucket was never
-# under Terraform either (nothing to mirror). Revisit if Loki's compactor
-# retention ever needs a bucket-side backstop.
+# NO object_expiration_days on loki_chunks. This is a refusal, not a gap -- do not add one.
+# Loki's own compactor enforces retention for this bucket (retention_enabled: true in the Loki
+# HelmRelease), and a bucket-side lifecycle rule cannot back that up, because the two cannot
+# measure the same thing.
+#
+# Loki's retention is per-stream, not one number: clusters/homelab/services/logging/conf.d/
+# loki-retention.yaml (homelab-ops-kubernetes-clusters) sets a 30d global with 24h overrides on
+# {namespace="media"} and {service_name="coredns"}, and 8760h -- one year -- on
+# {service_name="ci-diagnostics"}. A lifecycle rule can only test how old an object is; it sees
+# neither stream labels nor log timestamps. Set it near 31d and it deletes the year-retention
+# stream's chunks while Loki's index still references them, so queries past a month return
+# errors (NoSuchKey from the store) rather than missing data -- invisible until someone drags a
+# time picker back, and unrecoverable because that stream's source, GitHub Actions logs, is gone
+# after 90 days. Set it to ~366d, the only value safe for every stream, and 99.9% of the bucket
+# (the 24h and 30d data) sits for a year to protect a stream orders of magnitude smaller. Safe
+# or useful, never both.
+#
+# Object age is the wrong predicate for a second, independent reason: the ci-diagnostics ingester
+# writes retro-dated entries -- each stamped with the time the CI line was emitted, not the time
+# it was scraped -- and backfills up to 90 days. An object written today can contain three-month-
+# old data, so object age has no stable relationship to logical data age in either direction.
+#
+# Scope is this bucket. The module's object_expiration_days variable and its terracurl lifecycle
+# seam are correct and stay exactly as they are.
 module "loki_chunks" {
   source = "../../modules/garage-bucket"
 
