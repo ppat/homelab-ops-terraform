@@ -11,50 +11,81 @@ module "repo_homelab_ops_kubernetes_apps" {
     "jdx/mise-action@*",
     "tj-actions/changed-files@*"
   ]
-  # #3416 and #3417 are both merged and confirmed green on main (kubernetes-manifests
-  # re-verified directly via workflow_dispatch against main's tip; detect-changes and
-  # pre-commit confirmed in the same run). Safe to apply.
+  # HOW GITHUB DECIDES A REQUIRED CONTEXT IS SATISFIED (measured, not documented)
   #
-  # This list is deliberately NOT every job in lint.yaml. A GitHub Actions job's check-run
-  # *name* is only stable across every PR if either (a) it has no job-level `if:` at all,
-  # or (b) its `if:` is unconditionally true for every `pull_request` event. Two distinct
-  # ways a job can fail that test, both confirmed against real runs on this repo:
+  # The matching key is the check-run *name*, resolved against the check suites of the
+  # pull_request event only. Four properties drive everything below; each was measured on
+  # a throwaway repo and cross-checked against real runs here. Full write-up and evidence:
+  # .session-notes/apps-taxonomy/55-branch-protection.md.
   #
-  #   1. Workflow-level `paths:` filters (diff-changes.yaml's `diff` job, and every
-  #      chainsaw `test-*.yaml` workflow) mean the workflow never triggers at all for a
-  #      PR that doesn't touch matching paths - zero check runs posted, so a required
-  #      check on any of their job names gets stuck "Expected" forever on unrelated PRs.
-  #      diff-changes.yaml also stacks a *dynamic* module x resource matrix on top (post
-  #      #3515), making individual `diff (<module>, <resource>)` names even less stable.
+  #   a. A workflow that never triggers posts nothing, and an unreported context stays
+  #      "Expected" forever. Every `paths:`-filtered workflow here (diff-changes.yaml, all
+  #      eighteen test-*.yaml) is therefore unrequireable, permanently.
+  #   b. A job skipped by an `if:` DOES report, with conclusion "skipped" -- and skipped
+  #      SATISFIES a required context. So an `if:` does not make a check fail; it makes it
+  #      silently pass. What breaks is the NAME: a job that calls a reusable workflow
+  #      reports `shellcheck` when skipped and `shellcheck / shellcheck` when it runs. Two
+  #      different strings, and classic protection has no OR. That rules out lint.yaml's
+  #      github-actions/markdown/renovate-config-check/shellcheck/yaml/zizmor jobs.
+  #   c. The same name reported by TWO workflows must be non-failing in BOTH. Live here:
+  #      lint.yaml and diff-changes.yaml each define a job id `detect-changes` calling the
+  #      same reusable workflow, so `detect-changes / detect-changed-files` is emitted
+  #      twice on 165 of 300 sampled PRs. The context below therefore also gates
+  #      diff-changes.yaml's change detection. Nobody chose that; it is currently
+  #      harmless and arguably useful, but rename either job id and this list changes
+  #      meaning without changing text.
+  #   d. Two check suites of the SAME workflow resolve to the newest. That is why a
+  #      re-run, a reopen, or a PR-title edit clears an earlier failure.
   #
-  #   2. Job-level `if:` gating a *reusable workflow call* (lint.yaml's `github-actions`,
-  #      `markdown`, `renovate-config-check`, `shellcheck`, `yaml` jobs - all gated on
-  #      `fromJSON(needs.detect-changes.outputs.results).<bucket>_any_changed`) changes
-  #      the check-run *name itself* depending on whether the job actually invoked the
-  #      reusable workflow: it reports as bare `shellcheck` when skipped, but
-  #      `shellcheck / shellcheck` when it actually runs - two genuinely different
-  #      context strings from GitHub's point of view, confirmed via the raw Checks API
-  #      (not just the CLI display) against a real PR. Classic branch protection has no
-  #      OR-semantics, so requiring both strings doesn't help - it'd just permanently wait
-  #      on whichever one didn't fire. Fixing this needs an always-run gate job in
-  #      lint.yaml (aggregating `needs.*.result` with `if: always()`) before those five
-  #      can be safely required - not something this Terraform list alone can solve.
+  # THE FOUR CONTEXTS BELOW
   #
-  # The three below are unaffected by either failure mode: `kubernetes-manifests` has no
-  # reusable-workflow call at all (inline job, name never has a slash); `detect-changes`/
-  # `pre-commit` have no job-level `if:` at all.
+  # kubernetes-manifests -- inline job, no `if:`, no slash in the name, always fires. Note
+  #   it has `needs: [detect-changes]`, so a detect-changes failure makes it report
+  #   "skipped" and pass vacuously; that is covered only because detect-changes is itself
+  #   required.
+  # detect-changes / detect-changed-files -- no job-level `if:`; see (c) above.
+  # pre-commit / pre-commit -- no `if:`, no `needs:`.
+  # commit-taxonomy -- the best-shaped candidate in the repository: inline (no slash), no
+  #   `if:` (cannot go vacuous), no `needs:`, in a workflow with no `paths:` filter, unique
+  #   name, 14s. It gates the one thing nothing else sees: that the Renovate/release-please
+  #   config CANNOT compile a header commitlint would reject. Two costs, stated: its verdict
+  #   is a function of repo state rather than the PR's diff, so when it goes red it goes red
+  #   on every open PR at once; and it fetches pinned presets over the network
+  #   (ppat/homelab-ops-kubernetes-apps#3818 adds retry + timeout to that call and must land
+  #   first).
   #
-  # `commit-messages / commit-messages` is ALSO name-stable (its only gate is
-  # `event_name == 'pull_request'`, true for every real PR) but deliberately left out
-  # anyway: Renovate-authored commits sometimes fail commitlint, and making this required
-  # would block those PRs - including automerge - on a lint failure in a commit message
-  # neither this repo nor Renovate's own config fully controls. Revisit only if that
-  # gets fixed at the source (Renovate commit-message template / commitlint config).
+  # DELIBERATELY NOT REQUIRED
+  #
+  # commit-messages / commit-messages -- mechanically safe (302/302 sampled PRs report the
+  #   slashed name; the bare form never occurs on a pull_request event). Held back on
+  #   policy: it was dropped in #280 because Renovate commits sometimes fail commitlint,
+  #   and the emission-closure check is supposed to retire that objection -- but it is a
+  #   MODEL of the emitter, and the conformance check against the real Renovate CLI
+  #   (apps#3797) is still open. Require it after that lands, not before.
+  # pr-title -- ppat/homelab-ops-kubernetes-apps#3819 adds a job that lints the PR title,
+  #   which is the subject that lands for every multi-commit PR and which nothing has ever
+  #   checked. Same shape as commit-taxonomy and safe to require, but only once it has a
+  #   track record on real PRs. That is the next entry in this list, not this change.
+  #
+  # RECOVERY, BECAUSE THERE IS NONE IN-BAND
+  #
+  # enforce_admins is true and there are no rulesets, no merge queue and no bypass list, so
+  # a wedged context cannot be clicked past. workflow_dispatch does NOT help: check runs
+  # from a dispatch suite land on the head SHA but are not in the pull_request rollup the
+  # gate reads (measured). The remedy for a wedge is to remove the context here, apply,
+  # merge, restore. Keep that cost in mind before adding a fifth entry.
   required_status_checks = [
     "kubernetes-manifests",
     "detect-changes / detect-changed-files",
-    "pre-commit / pre-commit"
+    "pre-commit / pre-commit",
+    "commit-taxonomy"
   ]
+  # strict stays false. Measured: strict is entirely inert while contexts is empty, so the
+  # module default did nothing until #280 gave this repo a non-empty list on 2026-08-03 --
+  # which means #280 switched on the up-to-date requirement for the first time, and #288
+  # turned it off nine days later. The contexts were never the problem (they report on
+  # 300/300 sampled PRs and essentially never fail); strict was. With 4-39 merges/day into
+  # main, every merge flips every open PR to "behind" and forces a full CI re-run.
   required_status_checks_strict = false
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
