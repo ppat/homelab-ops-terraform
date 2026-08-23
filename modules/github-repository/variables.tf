@@ -36,13 +36,13 @@ variable "main_ruleset_enabled" {
 }
 
 variable "main_ruleset_required_approving_review_count" {
-  description = "Approvals required by the ruleset's pull_request rule. Must be >= 1 to stop a write actor merging its own PRs; 0 makes the rule decorative (measured, see ruleset.tf)."
+  description = "Approvals required by the ruleset's pull_request rule. Must be >= 1 to stop a write actor merging its own PRs; 0 makes the rule decorative (see ruleset.tf)."
   type        = number
   default     = 1
 }
 
-variable "main_ruleset_bypass_actors" {
-  description = "Actors exempt from the ruleset (NOT from classic branch protection -- measured, see ruleset.tf). RepositoryRole admin is actor_id 5. For Integration, actor_id is the GitHub App id."
+variable "main_ruleset_additional_bypass_actors" {
+  description = "Actors exempt from the ruleset in addition to the always-present repository-admin entry (exempt from the ruleset only, never from classic branch protection -- see ruleset.tf). For Integration actors, actor_id is the GitHub App id."
   type = list(object({
     actor_id    = number
     actor_type  = string
