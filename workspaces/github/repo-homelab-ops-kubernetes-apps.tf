@@ -71,11 +71,12 @@ module "repo_homelab_ops_kubernetes_apps" {
   #
   # enforce_admins is true, and while a ruleset with a bypass list now sits on main (see
   # main_ruleset_* below), a ruleset bypass exempts its holder from the ruleset only -- it
-  # does not clear a wedged required context, so a wedged context still cannot be clicked
-  # past. workflow_dispatch does NOT help: check runs
+  # does not clear a required context that is never reported, so such a context still
+  # cannot be clicked past. workflow_dispatch does NOT help: check runs
   # from a dispatch suite land on the head SHA but are not in the pull_request rollup the
-  # gate reads (measured). The remedy for a wedge is to remove the context here, apply,
-  # merge, restore. Keep that cost in mind before adding a fifth entry.
+  # gate reads (measured). The remedy for a required context that is never reported is
+  # to remove it here, apply, merge, restore. Keep that cost in mind before adding a
+  # fifth entry.
   required_status_checks = [
     "kubernetes-manifests",
     "detect-changes / detect-changed-files",
@@ -95,7 +96,7 @@ module "repo_homelab_ops_kubernetes_apps" {
   # Agents authenticate as their own GitHub App. The App pushes branches and opens PRs;
   # this ruleset is what stops it landing anything on main: 1 required approval, and an
   # actor cannot approve its own PR. The module hardcodes the repository-admin bypass
-  # (the maintainer -- also the guard that makes a wedge impossible); listed here are
+  # (the maintainer -- also the guard that ensures someone can always merge); listed here are
   # the additional actors that legitimately update main today:
   #
   #   homelab-bot (Integration) -- release-please's PR pushes and the release-sweep's
@@ -107,17 +108,28 @@ module "repo_homelab_ops_kubernetes_apps" {
   #
   # NOTE: until agent pods stop authenticating with the maintainer's PAT, agents share
   # the admin bypass and the ruleset protects nothing (it is safe either way -- the
-  # hardcoded admin bypass means it can never wedge the repo). The boundary becomes
-  # real when the dotfiles change lands.
+  # hardcoded admin bypass means it can never leave the repo unmergeable). The boundary
+  # becomes real when the dotfiles change lands.
   #
-  # bypass_mode is "always" for both: "pull_request" would be narrower but its exact
-  # semantics are unverified, and a too-narrow mode fails as silently-stopped merge
-  # automation. For Integration actors, actor_id is the GitHub App id -- after any
-  # change here, verify the repo's rules page renders the App names in the bypass list.
-  main_ruleset_enabled = true
+  # bypass_mode is "pull_request" for both: "always" would exempt these Apps on every
+  # path, including a direct push to main; "pull_request" confines the bypass to
+  # merging pull requests, which is the only way either bot legitimately updates main.
+  #
+  # UNVERIFIED, AND THE FAILURE IS SILENT: both bots merge via the API, and whether
+  # "pull_request" mode covers an API-driven merge has not been exercised. If it does
+  # not, Renovate automerge and the release sweep stop landing PRs, and the symptom
+  # looks exactly like "nothing was eligible this run". If bot merges stop, flip these
+  # two entries back to "always" -- that is the whole remedy, and it needs no module
+  # change (bypass_mode is per-entry; main_ruleset_admin_bypass_mode below is the
+  # admin's own setting and stays put -- the human is not merging via the API).
+  #
+  # For Integration actors, actor_id is the GitHub App id -- after any change here,
+  # verify the repo's rules page renders the App names in the bypass list.
+  main_ruleset_enabled           = true
+  main_ruleset_admin_bypass_mode = "pull_request"
   main_ruleset_additional_bypass_actors = [
-    { actor_id = tonumber(data.bitwarden_secret.homelab_bot_app_id.value), actor_type = "Integration", bypass_mode = "always" },
-    { actor_id = tonumber(data.bitwarden_secret.renovate_app_id.value), actor_type = "Integration", bypass_mode = "always" },
+    { actor_id = tonumber(data.bitwarden_secret.homelab_bot_app_id.value), actor_type = "Integration", bypass_mode = "pull_request" },
+    { actor_id = tonumber(data.bitwarden_secret.renovate_app_id.value), actor_type = "Integration", bypass_mode = "pull_request" },
   ]
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value

@@ -15,8 +15,8 @@
 #      linear history all keep operating unchanged.
 #   b. A ruleset bypass exempts its holder from THIS RULESET ONLY, never from branch
 #      protection: required contexts and enforce_admins still bind bypass holders. A
-#      bypass entry is not an admin override of the merge gate, and a wedged required
-#      context still cannot be clicked past (see the RECOVERY note in
+#      bypass entry is not an admin override of the merge gate, and a required context
+#      that is never reported still cannot be clicked past (see the RECOVERY note in
 #      workspaces/github/repo-homelab-ops-kubernetes-apps.tf).
 #   c. required_approving_review_count = 0 makes the pull_request rule decorative: any
 #      actor with contents write can merge. An actor cannot approve its own PR, so
@@ -28,11 +28,13 @@
 #      branch at all, by push or by merge -- closes that but gates every future
 #      main-updating actor on the bypass list; deliberately not chosen here.
 #
-# The repository-admin bypass is hardcoded below, not configurable. It is not a
-# preference: on a single-maintainer repository with enforce_admins true, a ruleset
+# The repository-admin bypass entry is hardcoded below -- its presence, actor id and
+# type are fixed; only its bypass_mode is configurable
+# (var.main_ruleset_admin_bypass_mode), because the mode is policy while the entry's
+# presence is the safety invariant. The presence is not a preference: on a single-maintainer repository with enforce_admins true, a ruleset
 # requiring an approval and carrying no admin bypass could never be satisfied by
-# anyone -- the branch wedges permanently. Making the entry structural means no caller
-# can produce that configuration. Base repository role ids (maintain 2, write 4,
+# anyone -- every pull request into the branch would stay unmergeable, permanently.
+# Making the entry structural means no caller can produce that configuration. Base repository role ids (maintain 2, write 4,
 # admin 5) are part of GitHub's global schema: the API resolves the bare integers to
 # role names with no per-repository context, and custom org roles occupy a separate
 # id range. var.main_ruleset_additional_bypass_actors carries only the extra actors
@@ -55,11 +57,21 @@ resource "github_repository_ruleset" "main" {
     }
   }
 
-  # The wedge guard. See the header comment; do not make this configurable.
+  # The guard that keeps the ruleset satisfiable (see the header comment): the
+  # entry's presence, actor and type are fixed -- only its mode is configurable.
+  #
+  # Why the mode defaults to "pull_request", not "always": "always" exempts the
+  # holder on every path, including a direct push to the default branch -- and this
+  # ruleset is the control that actually rejects such a push (measured: an unsigned
+  # commit pushed directly to main was refused by this ruleset alone, with no
+  # signature violation raised). "pull_request" confines the bypass to merging pull
+  # requests, so an accidental direct push is refused while the admin can still
+  # merge any PR without an approval -- which is all this guard requires, and both
+  # accepted modes cover PR merges, so neither can leave pull requests unmergeable.
   bypass_actors {
     actor_id    = 5
     actor_type  = "RepositoryRole"
-    bypass_mode = "always"
+    bypass_mode = var.main_ruleset_admin_bypass_mode
   }
 
   dynamic "bypass_actors" {
