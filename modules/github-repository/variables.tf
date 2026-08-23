@@ -42,7 +42,7 @@ variable "main_ruleset_required_approving_review_count" {
 }
 
 variable "main_ruleset_admin_bypass_mode" {
-  description = "bypass_mode of the always-present repository-admin bypass entry. The entry itself is structural and cannot be removed (the wedge guard -- see ruleset.tf); its mode is a policy dial. GitHub accepts only \"always\" and \"pull_request\"."
+  description = "bypass_mode of the always-present repository-admin bypass entry. The entry itself is structural and cannot be removed (without it, a ruleset requiring an approval could leave a single-maintainer repository permanently unable to merge -- see ruleset.tf); its mode is the configurable part. GitHub accepts only \"always\" and \"pull_request\"."
   type        = string
   default     = "pull_request"
 
