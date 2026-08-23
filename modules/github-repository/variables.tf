@@ -41,6 +41,17 @@ variable "main_ruleset_required_approving_review_count" {
   default     = 1
 }
 
+variable "main_ruleset_admin_bypass_mode" {
+  description = "bypass_mode of the always-present repository-admin bypass entry. The entry itself is structural and cannot be removed (the wedge guard -- see ruleset.tf); its mode is a policy dial. GitHub accepts only \"always\" and \"pull_request\"."
+  type        = string
+  default     = "pull_request"
+
+  validation {
+    condition     = contains(["always", "pull_request"], var.main_ruleset_admin_bypass_mode)
+    error_message = "main_ruleset_admin_bypass_mode must be \"always\" or \"pull_request\" -- the only bypass modes GitHub accepts."
+  }
+}
+
 variable "main_ruleset_additional_bypass_actors" {
   description = "Actors exempt from the ruleset in addition to the always-present repository-admin entry (exempt from the ruleset only, never from classic branch protection -- see ruleset.tf). For Integration actors, actor_id is the GitHub App id."
   type = list(object({

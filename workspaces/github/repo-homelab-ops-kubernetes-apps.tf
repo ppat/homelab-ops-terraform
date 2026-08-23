@@ -119,11 +119,13 @@ module "repo_homelab_ops_kubernetes_apps" {
   # not, Renovate automerge and the release sweep stop landing PRs, and the symptom
   # looks exactly like "nothing was eligible this run". If bot merges stop, flip these
   # two entries back to "always" -- that is the whole remedy, and it needs no module
-  # change (bypass_mode is per-entry; the admin entry in ruleset.tf stays as it is).
+  # change (bypass_mode is per-entry; main_ruleset_admin_bypass_mode below is the
+  # admin's own dial and stays put -- the human is not merging via the API).
   #
   # For Integration actors, actor_id is the GitHub App id -- after any change here,
   # verify the repo's rules page renders the App names in the bypass list.
-  main_ruleset_enabled = true
+  main_ruleset_enabled           = true
+  main_ruleset_admin_bypass_mode = "pull_request"
   main_ruleset_additional_bypass_actors = [
     { actor_id = tonumber(data.bitwarden_secret.homelab_bot_app_id.value), actor_type = "Integration", bypass_mode = "pull_request" },
     { actor_id = tonumber(data.bitwarden_secret.renovate_app_id.value), actor_type = "Integration", bypass_mode = "pull_request" },

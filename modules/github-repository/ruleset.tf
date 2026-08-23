@@ -28,8 +28,10 @@
 #      branch at all, by push or by merge -- closes that but gates every future
 #      main-updating actor on the bypass list; deliberately not chosen here.
 #
-# The repository-admin bypass is hardcoded below, not configurable. It is not a
-# preference: on a single-maintainer repository with enforce_admins true, a ruleset
+# The repository-admin bypass entry is hardcoded below -- its presence, actor id and
+# type are not configurable; only its bypass_mode is a dial
+# (var.main_ruleset_admin_bypass_mode), because the mode is policy while the entry's
+# presence is the safety invariant. The presence is not a preference: on a single-maintainer repository with enforce_admins true, a ruleset
 # requiring an approval and carrying no admin bypass could never be satisfied by
 # anyone -- the branch wedges permanently. Making the entry structural means no caller
 # can produce that configuration. Base repository role ids (maintain 2, write 4,
@@ -55,19 +57,21 @@ resource "github_repository_ruleset" "main" {
     }
   }
 
-  # The wedge guard. See the header comment; do not make this configurable.
+  # The wedge guard. See the header comment; the entry's presence, actor and type
+  # are fixed -- only its mode is configurable.
   #
-  # bypass_mode "pull_request", not "always": "always" exempts the holder on every
-  # path, including a direct push to the default branch -- and this ruleset is the
-  # control that actually rejects such a push (measured: an unsigned commit pushed
-  # directly to main was refused by this ruleset alone, with no signature violation
-  # raised). "pull_request" confines the bypass to merging pull requests, so an
-  # accidental direct push is refused while the admin can still merge any PR without
-  # an approval -- which is all the wedge guard needs.
+  # Why the mode defaults to "pull_request", not "always": "always" exempts the
+  # holder on every path, including a direct push to the default branch -- and this
+  # ruleset is the control that actually rejects such a push (measured: an unsigned
+  # commit pushed directly to main was refused by this ruleset alone, with no
+  # signature violation raised). "pull_request" confines the bypass to merging pull
+  # requests, so an accidental direct push is refused while the admin can still
+  # merge any PR without an approval -- which is all the wedge guard needs, and both
+  # accepted modes cover PR merges, so neither can wedge the repo.
   bypass_actors {
     actor_id    = 5
     actor_type  = "RepositoryRole"
-    bypass_mode = "pull_request"
+    bypass_mode = var.main_ruleset_admin_bypass_mode
   }
 
   dynamic "bypass_actors" {
