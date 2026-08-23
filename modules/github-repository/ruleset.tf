@@ -56,10 +56,18 @@ resource "github_repository_ruleset" "main" {
   }
 
   # The wedge guard. See the header comment; do not make this configurable.
+  #
+  # bypass_mode "pull_request", not "always": "always" exempts the holder on every
+  # path, including a direct push to the default branch -- and this ruleset is the
+  # control that actually rejects such a push (measured: an unsigned commit pushed
+  # directly to main was refused by this ruleset alone, with no signature violation
+  # raised). "pull_request" confines the bypass to merging pull requests, so an
+  # accidental direct push is refused while the admin can still merge any PR without
+  # an approval -- which is all the wedge guard needs.
   bypass_actors {
     actor_id    = 5
     actor_type  = "RepositoryRole"
-    bypass_mode = "always"
+    bypass_mode = "pull_request"
   }
 
   dynamic "bypass_actors" {

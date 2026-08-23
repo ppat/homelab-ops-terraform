@@ -110,14 +110,23 @@ module "repo_homelab_ops_kubernetes_apps" {
   # hardcoded admin bypass means it can never wedge the repo). The boundary becomes
   # real when the dotfiles change lands.
   #
-  # bypass_mode is "always" for both: "pull_request" would be narrower but its exact
-  # semantics are unverified, and a too-narrow mode fails as silently-stopped merge
-  # automation. For Integration actors, actor_id is the GitHub App id -- after any
-  # change here, verify the repo's rules page renders the App names in the bypass list.
+  # bypass_mode is "pull_request" for both: "always" would exempt these Apps on every
+  # path, including a direct push to main; "pull_request" confines the bypass to
+  # merging pull requests, which is the only way either bot legitimately updates main.
+  #
+  # UNVERIFIED, AND THE FAILURE IS SILENT: both bots merge via the API, and whether
+  # "pull_request" mode covers an API-driven merge has not been exercised. If it does
+  # not, Renovate automerge and the release sweep stop landing PRs, and the symptom
+  # looks exactly like "nothing was eligible this run". If bot merges stop, flip these
+  # two entries back to "always" -- that is the whole remedy, and it needs no module
+  # change (bypass_mode is per-entry; the admin entry in ruleset.tf stays as it is).
+  #
+  # For Integration actors, actor_id is the GitHub App id -- after any change here,
+  # verify the repo's rules page renders the App names in the bypass list.
   main_ruleset_enabled = true
   main_ruleset_additional_bypass_actors = [
-    { actor_id = tonumber(data.bitwarden_secret.homelab_bot_app_id.value), actor_type = "Integration", bypass_mode = "always" },
-    { actor_id = tonumber(data.bitwarden_secret.renovate_app_id.value), actor_type = "Integration", bypass_mode = "always" },
+    { actor_id = tonumber(data.bitwarden_secret.homelab_bot_app_id.value), actor_type = "Integration", bypass_mode = "pull_request" },
+    { actor_id = tonumber(data.bitwarden_secret.renovate_app_id.value), actor_type = "Integration", bypass_mode = "pull_request" },
   ]
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
