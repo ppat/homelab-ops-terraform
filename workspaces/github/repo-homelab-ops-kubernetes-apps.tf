@@ -69,8 +69,10 @@ module "repo_homelab_ops_kubernetes_apps" {
   #
   # RECOVERY, BECAUSE THERE IS NONE IN-BAND
   #
-  # enforce_admins is true and there are no rulesets, no merge queue and no bypass list, so
-  # a wedged context cannot be clicked past. workflow_dispatch does NOT help: check runs
+  # enforce_admins is true, and while a ruleset with a bypass list now sits on main (see
+  # main_ruleset_* below), a ruleset bypass exempts its holder from the ruleset only -- it
+  # does not clear a wedged required context, so a wedged context still cannot be clicked
+  # past. workflow_dispatch does NOT help: check runs
   # from a dispatch suite land on the head SHA but are not in the pull_request rollup the
   # gate reads (measured). The remedy for a wedge is to remove the context here, apply,
   # merge, restore. Keep that cost in mind before adding a fifth entry.
@@ -87,6 +89,36 @@ module "repo_homelab_ops_kubernetes_apps" {
   # 300/300 sampled PRs and essentially never fail); strict was. With 4-39 merges/day into
   # main, every merge flips every open PR to "behind" and forces a full CI re-run.
   required_status_checks_strict = false
+  # AGENT IDENTITY BOUNDARY (see modules/github-repository/ruleset.tf for how the
+  # ruleset composes with classic branch protection, and for the residual it accepts)
+  #
+  # Agents authenticate as their own GitHub App. The App pushes branches and opens PRs;
+  # this ruleset is what stops it landing anything on main: 1 required approval, and an
+  # actor cannot approve its own PR. The module hardcodes the repository-admin bypass
+  # (the maintainer -- also the guard that makes a wedge impossible); listed here are
+  # the additional actors that legitimately update main today:
+  #
+  #   homelab-bot (Integration) -- release-please's PR pushes and the release-sweep's
+  #     squash merges (apps#3826); without bypass the sweep cannot merge unapproved
+  #     release PRs and tagging stops.
+  #   renovate app (Integration) -- Renovate merges its own automerge-eligible PRs via
+  #     API (platformAutomerge is inert with allow_auto_merge=false); without bypass
+  #     automerge silently stops and PRs pile up.
+  #
+  # NOTE: until agent pods stop authenticating with the maintainer's PAT, agents share
+  # the admin bypass and the ruleset protects nothing (it is safe either way -- the
+  # hardcoded admin bypass means it can never wedge the repo). The boundary becomes
+  # real when the dotfiles change lands.
+  #
+  # bypass_mode is "always" for both: "pull_request" would be narrower but its exact
+  # semantics are unverified, and a too-narrow mode fails as silently-stopped merge
+  # automation. For Integration actors, actor_id is the GitHub App id -- after any
+  # change here, verify the repo's rules page renders the App names in the bypass list.
+  main_ruleset_enabled = true
+  main_ruleset_additional_bypass_actors = [
+    { actor_id = tonumber(data.bitwarden_secret.homelab_bot_app_id.value), actor_type = "Integration", bypass_mode = "always" },
+    { actor_id = tonumber(data.bitwarden_secret.renovate_app_id.value), actor_type = "Integration", bypass_mode = "always" },
+  ]
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
     DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value
