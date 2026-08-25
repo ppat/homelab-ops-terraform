@@ -1,12 +1,15 @@
 # ============================================================================
-# TEMPORARY -- migration-only credential. DELETE THIS FILE WHOLESALE (and
-# `terraform apply`) once the MinIO-to-Garage bucket migration is complete
-# for all three buckets below (clusters#910's runbook, OPERATIONS.md
-# "Runbook: migrate MinIO buckets to Garage"). Leaving it in place afterward
-# is exactly the kind of standing broad-write privilege this project already
-# rejected once, in dropping the Garage operator over its own cluster-wide
-# Secret access -- a migration credential that outlives its migration is the
-# same mistake in miniature.
+# TEMPORARY -- migration-only credentials. Two of them: garage_key.migration
+# below, resolved from Bitwarden by in-cluster Jobs, and
+# module.migration_loki_chunks_key at the bottom of this file, handed to the
+# agent driving the migration as a file. They live in one file so they retire
+# as one unit. DELETE THIS FILE WHOLESALE (and `terraform apply`) once the
+# MinIO-to-Garage bucket migration is complete for all three buckets below
+# (clusters#910's runbook, OPERATIONS.md "Runbook: migrate MinIO buckets to
+# Garage"). Leaving either in place afterward is exactly the kind of standing
+# broad-write privilege this project already rejected once, in dropping the
+# Garage operator over its own cluster-wide Secret access -- a migration
+# credential that outlives its migration is the same mistake in miniature.
 # ============================================================================
 #
 # Lives at the workspace level, not inside modules/garage-bucket: it spans
@@ -79,4 +82,54 @@ resource "bitwarden_secret" "migration_secretkey" {
   value      = garage_key.migration.secret_access_key
   project_id = var.bitwarden_project_id
   note       = "MinIO->Garage migration key's secret access key -- read+write on homelab-loki-chunks, homelab-authentik-media, homelab-terraform-state. Temporary: retire per this file's own top-of-file comment once the migration is done."
+}
+
+# ============================================================================
+# The agent-held migration credential. Scoped to homelab-loki-chunks alone,
+# unlike garage_key.migration above.
+# ============================================================================
+#
+# Why a second key rather than reusing garage_key.migration: the two have
+# different holders. garage_key.migration is resolved from Bitwarden by
+# in-cluster Jobs and never leaves the cluster. This one is delivered to the
+# agent executing the migration as a file on its filesystem -- that agent has
+# read-only Kubernetes access and no Bitwarden access, so it cannot reach the
+# other key at all. Handing it garage_key.migration instead would put a
+# credential for homelab-terraform-state -- the bucket meant to back every
+# workspace's own state -- into a file on an agent's disk, which is the
+# shared-key widening this scoping exists to avoid.
+#
+# read+write, not read alone: the agent runs the copy itself with this
+# credential, and copying INTO homelab-loki-chunks needs write on the
+# destination. What that grants, stated plainly: create, overwrite and delete
+# any object in the bucket that holds every Loki chunk in production. Nothing
+# narrower does the job -- a read-only grant fails at the one moment the
+# credential is needed, and could not be widened mid-window either, since
+# garage_bucket_permission changes are plan-and-apply and the holder has no
+# apply capability.
+#
+# owner is withheld deliberately, not overlooked. Garage's permission model is
+# flat -- read, write, owner (src/model/permission.rs BucketKeyPerm) -- and
+# owner adds only bucket-level management: aliases, website access, deleting
+# the bucket itself. The migration touches none of those, and object delete
+# already comes with write. Same reasoning as modules/garage-key/key.tf's.
+#
+# Bitwarden write-back is the module's own, under its hardcoded prefix:
+# garage_key_<key_name>_accesskey / _secretkey. Do not hand-create those two
+# entries ahead of the first apply -- bitwarden_secret creates by ID and never
+# adopts an entry by matching key name, so a pre-existing entry becomes a
+# silent duplicate rather than an overwrite, the same trap spelled out for the
+# two hand-named entries above.
+module "migration_loki_chunks_key" {
+  source = "../../modules/garage-key"
+
+  key_name = "minio-garage-migration-loki-chunks"
+  buckets = {
+    loki_chunks = {
+      bucket_id = module.loki_chunks.bucket.id
+      read      = true
+      write     = true
+    }
+  }
+  bitwarden_project_id = var.bitwarden_project_id
 }
