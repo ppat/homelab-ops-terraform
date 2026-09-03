@@ -50,6 +50,7 @@ module.exports = {
         'litellm-model',
         'litellm-virtual-key',
         'minio-bucket',
+        'versitygw-account',
         // workspaces
         'authentik',
         'garage-homelab',
@@ -58,6 +59,7 @@ module.exports = {
         'litellm',
         'minio-homelab',
         'minio-nas',
+        'versitygw-nas',
         // terraform dependencies
         'terraform-provider',
         'terraform-version'
