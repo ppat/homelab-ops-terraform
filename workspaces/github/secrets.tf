@@ -38,12 +38,20 @@ data "bitwarden_secret" "homelab_bot_app_id" {
   id = "ee1b5ec1-aa5a-401c-89c8-b2550173b361"
 }
 
+data "bitwarden_secret" "homelab_bot_client_id" {
+  id = "77a8be6f-7dea-4277-b42e-b20700f021ed"
+}
+
 data "bitwarden_secret" "homelab_bot_app_private_key" {
   id = "cc6026e0-3dc3-4846-8d6f-b20700f07a90"
 }
 
 data "bitwarden_secret" "renovate_app_id" {
   id = "221d52a5-c73d-48dd-ba4f-b2f20171ab4e"
+}
+
+data "bitwarden_secret" "renovate_client_id" {
+  id = "e9e5323d-acbe-4f4e-ade0-b4ba010e14f5"
 }
 
 data "bitwarden_secret" "renovate_app_private_key" {

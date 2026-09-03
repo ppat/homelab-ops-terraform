@@ -22,8 +22,10 @@ module "repo_github_workflows" {
     CONTAINER_REGISTRY_USERNAME = data.bitwarden_secret.harbor_robot_username.value
     CONTAINER_REGISTRY_PASSWORD = data.bitwarden_secret.harbor_robot_password.value
     HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
+    HOMELAB_BOT_CLIENT_ID       = data.bitwarden_secret.homelab_bot_client_id.value
     HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
     RENOVATE_APP_ID             = data.bitwarden_secret.renovate_app_id.value
+    RENOVATE_CLIENT_ID          = data.bitwarden_secret.renovate_client_id.value
     RENOVATE_APP_PRIVATE_KEY    = data.bitwarden_secret.renovate_app_private_key.value
     TAILSCALE_OAUTH_CLIENT_ID   = data.bitwarden_secret.tailscale_githubactionsci_clientid.value
     TAILSCALE_OAUTH_SECRET      = data.bitwarden_secret.tailscale_githubactionsci_clientsecret.value

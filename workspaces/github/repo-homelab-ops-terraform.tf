@@ -22,6 +22,7 @@ module "repo_homelab_ops_terraform" {
     DOCKERHUB_USERNAME       = data.bitwarden_secret.dockerhub_username.value
     DOCKERHUB_TOKEN          = data.bitwarden_secret.dockerhub_token.value
     RENOVATE_APP_ID          = data.bitwarden_secret.renovate_app_id.value
+    RENOVATE_CLIENT_ID       = data.bitwarden_secret.renovate_client_id.value
     RENOVATE_APP_PRIVATE_KEY = data.bitwarden_secret.renovate_app_private_key.value
   }
 }
