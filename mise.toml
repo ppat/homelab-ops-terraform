@@ -2,6 +2,10 @@
 bun            = "1.4.0"
 node           = "24.20.0"
 "pipx:checkov" = "3.3.16"
+# Not tooling: modules/versitygw-account shells `python3` on every apply and destroy path
+# it has, so a machine without one fails part-way through the apply that mints credentials
+# rather than before it starts.
+python         = "3.14.7"
 terraform      = "1.6.6"
 terraform-docs = "0.24.0"
 tflint         = "0.64.0"
