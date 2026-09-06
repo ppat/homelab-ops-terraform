@@ -15,7 +15,7 @@ Root Terraform configurations under `workspaces/<name>/`, each an independent
 state/backend.
 
 | Name | Description |
-|------|-------------|
+| ------ | ------------- |
 | [`authentik`](workspaces/authentik) | Authentik SSO — applications, providers, and outposts |
 | [`garage-homelab`](workspaces/garage-homelab) | Garage instance on homelab infra — Loki, Authentik media, and Terraform state buckets |
 | [`github`](workspaces/github) | GitHub org repository configuration |
@@ -23,6 +23,7 @@ state/backend.
 | [`litellm`](workspaces/litellm) | LiteLLM proxy — models, remote MCP servers, and virtual keys |
 | [`minio-homelab`](workspaces/minio-homelab) | MinIO instance on homelab infra — Terraform state and Authentik media buckets |
 | [`minio-nas`](workspaces/minio-nas) | MinIO instance on NAS — CloudNativePG and Longhorn backup buckets |
+| [`versitygw-nas`](workspaces/versitygw-nas) | versitygw object store on NAS — CloudNativePG and Longhorn backup buckets, and their owning accounts |
 
 ### Modules
 
@@ -30,7 +31,7 @@ Reusable modules under `modules/<name>/`, consumed by workspaces via relative `s
 paths.
 
 | Name | Description |
-|------|-------------|
+| ------ | ------------- |
 | [`authentik-oauth2-application`](modules/authentik-oauth2-application) | Authentik OAuth2 provider + application + group binding |
 | [`authentik-proxy-application`](modules/authentik-proxy-application) | Authentik proxy provider + application + group binding |
 | [`garage-bucket`](modules/garage-bucket) | Garage bucket with lifecycle rules and public-read website support |
@@ -42,6 +43,7 @@ paths.
 | [`litellm-model`](modules/litellm-model) | LiteLLM model with file-declared collision guard |
 | [`litellm-virtual-key`](modules/litellm-virtual-key) | LiteLLM virtual key with model/MCP access control and Bitwarden write-back |
 | [`minio-bucket`](modules/minio-bucket) | MinIO bucket with lifecycle rules and owner credentials |
+| [`versitygw-account`](modules/versitygw-account) | versitygw account, the bucket it owns, and Bitwarden write-back — driven through the admin API, which only accepts SigV4 |
 
 ## Prerequisites
 
