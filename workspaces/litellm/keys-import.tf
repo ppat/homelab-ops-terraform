@@ -2,6 +2,14 @@
 # IMPORT — adopting the five hand-minted keys (DO NOT let terraform apply create them)
 # ==============================================================================
 #
+# This file is about the five ADOPTED keys only. The workspace also holds one key that is
+# genuinely created by Terraform — obsidian-vault-batch-processor, see
+# key-obsidian-vault-batch-processor.tf — which nothing presents yet and which must NOT be
+# imported. The distinction is the whole hazard this file exists to name: an import that should
+# have been a create leaves Terraform managing a key nobody holds, and a create that should have
+# been an import rotates a live credential. Read the last section below before reading a plan that
+# contains both.
+#
 # Five virtual keys already exist, hand-minted in the LiteLLM Admin UI, each live and in use by
 # a real consumer: openwebui, coder, golynniis, n8n, openclaw — all five now have real,
 # committed config (key-openwebui.tf, key-coder.tf, key-golynniis.tf, key-n8n.tf,
@@ -83,6 +91,30 @@
 #     variables.tf).
 #
 # So: a clean first plan for this workspace means litellm_key and bitwarden_secret show
-# nothing at all — those are the two resources where a surprise change is the actual hazard
-# (rotated credential, clobbered secret) — and the only adds are the two terracurl_request
-# resources for n8n/openclaw.
+# nothing at all FOR THESE FIVE — those are the two resources where a surprise change is the actual
+# hazard (rotated credential, clobbered secret) — and the only adds attributable to them are the two
+# terracurl_request resources for n8n/openclaw.
+#
+# ------------------------------------------------------------------------------
+# THE SIXTH KEY IS NOT PART OF ANY OF THE ABOVE
+# ------------------------------------------------------------------------------
+#
+# obsidian-vault-batch-processor (key-obsidian-vault-batch-processor.tf) has no live counterpart:
+# no LiteLLM key carries that alias, no Bitwarden secret carries the generated name, and no
+# workload presents it. It is created by apply, and it contributes three adds to the plan —
+# litellm_key.this, bitwarden_secret.apikey and terracurl_request.object_permission — which are
+# correct and expected, not evidence of a botched import.
+#
+# What would be evidence of a mistake, in either direction:
+#
+#   - An `import` block or `terraform import` invocation naming module.obsidian_vault_batch_processor.
+#     There is nothing to adopt. Importing it would bind Terraform to whatever key happened to be
+#     supplied as the import ID — most plausibly one of the five above — and the next apply would
+#     then reconcile that live credential to this key's much narrower config.
+#   - A plan showing module.obsidian_vault_batch_processor.litellm_key.this as a CHANGE or REPLACE
+#     rather than a create, before the first apply. That means state already holds something for it.
+#   - A plan showing any of the five adopted keys as a create. That is the mirror-image failure and
+#     rotates a live credential; stop.
+#
+# The consuming ExternalSecret cannot resolve until this apply has run, so the apply is ordered
+# BEFORE the apps repository's reference to the generated Bitwarden name is deployed, never after.
