@@ -9,6 +9,7 @@ module "repo_homelab_ops_actions" {
     "docker://ghcr.io/allenporter/flux-local:*",
     "googleapis/release-please-action@*",
     "jdx/mise-action@*",
+    "peter-evans/dockerhub-description@*",
     "tj-actions/changed-files@*"
   ]
   actions_secrets = {
