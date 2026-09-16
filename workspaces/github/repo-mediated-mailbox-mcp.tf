@@ -3,7 +3,7 @@ module "repo_mediated_mailbox_mcp" {
   repository = {
     name        = "mediated-mailbox-mcp"
     description = ""
-    visibility  = "private"
+    visibility  = "public"
   }
   actions_allowed = [
     "docker/build-push-action@*",

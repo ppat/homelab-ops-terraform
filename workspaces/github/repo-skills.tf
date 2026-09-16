@@ -3,7 +3,7 @@ module "repo_skills" {
   repository = {
     name        = "skills"
     description = ""
-    visibility  = "private"
+    visibility  = "public"
   }
   actions_allowed = [
     "googleapis/release-please-action@*",
