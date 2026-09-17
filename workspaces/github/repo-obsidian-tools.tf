@@ -3,7 +3,7 @@ module "repo_obsidian_tools" {
   repository = {
     name        = "obsidian-tools"
     description = ""
-    visibility  = "private"
+    visibility  = "public"
   }
   actions_allowed = [
     "docker/build-push-action@*",
@@ -13,6 +13,7 @@ module "repo_obsidian_tools" {
     "docker/setup-qemu-action@*",
     "googleapis/release-please-action@*",
     "jdx/mise-action@*",
+    "peter-evans/dockerhub-description@*",
     "tailscale/github-action@*",
     "tj-actions/changed-files@*"
   ]

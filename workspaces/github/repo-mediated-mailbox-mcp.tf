@@ -13,6 +13,7 @@ module "repo_mediated_mailbox_mcp" {
     "docker/setup-qemu-action@*",
     "googleapis/release-please-action@*",
     "jdx/mise-action@*",
+    "peter-evans/dockerhub-description@*",
     "tailscale/github-action@*",
     "tj-actions/changed-files@*"
   ]
