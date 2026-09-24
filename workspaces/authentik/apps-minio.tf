@@ -34,24 +34,3 @@ module "oauth2_minio_nas" {
     url           = "https://minio-console.nas.${data.bitwarden_secret.dns_zone.value}/oauth_callback"
   }]
 }
-
-module "oauth2_minio_homelab" {
-  source               = "../../modules/authentik-oauth2-application"
-  name                 = "minio-homelab"
-  bitwarden_project_id = var.bitwarden_project_id
-  client_id            = var.clientid_miniohomelab
-  flows                = local.default_flows
-  groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  icon_url             = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/minio.svg"
-  launch_url           = "https://minio-console.homelab.${data.bitwarden_secret.dns_zone.value}"
-  signing_key_id       = data.authentik_certificate_key_pair.signing_key_pair.id
-
-  property_mappings = concat(
-    data.authentik_property_mapping_provider_scope.default.ids,
-    [authentik_property_mapping_provider_scope.minio.id]
-  )
-  redirect_uris = [{
-    matching_mode = "strict"
-    url           = "https://minio-console.homelab.${data.bitwarden_secret.dns_zone.value}/oauth_callback"
-  }]
-}

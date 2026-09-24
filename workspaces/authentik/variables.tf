@@ -28,11 +28,6 @@ variable "clientid_kubernetesnas" {
   sensitive = true
 }
 
-variable "clientid_miniohomelab" {
-  type      = string
-  sensitive = true
-}
-
 variable "clientid_minionas" {
   type      = string
   sensitive = true

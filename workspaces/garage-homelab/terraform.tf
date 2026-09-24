@@ -1,11 +1,11 @@
 terraform {
   required_version = "1.6.6"
 
-  # Deliberately still the MinIO-hosted bucket, not a Garage-hosted one --
-  # backend-hosted state can't bootstrap into a bucket this same workspace is
-  # what creates (see bucket-terraform-state.tf's comment). Migrating this
-  # backend to Garage is a separate, later cutover, not part of provisioning
-  # the bucket itself.
+  # This workspace's own state lives in the bucket it creates in
+  # bucket-terraform-state.tf -- a standing DR hazard: recovering this Garage
+  # instance from scratch requires restoring Terraform state by some other
+  # means before this bucket, and therefore every other workspace's backend,
+  # can be reached again.
   backend "s3" {
     bucket                      = "homelab-terraform-state"
     key                         = "garage-homelab/terraform.tfstate"

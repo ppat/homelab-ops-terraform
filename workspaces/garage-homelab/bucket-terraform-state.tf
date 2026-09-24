@@ -1,15 +1,7 @@
-# This bucket is meant to eventually host this repo's OWN Terraform state (see
-# terraform.tf: every workspace's backend, including this one, still points at
-# the existing MinIO-hosted homelab-terraform-state bucket for now) -- creating
-# it here does not migrate anything. That migration is a deliberate, separate
-# cutover: each workspace's backend block would need to move to this bucket
-# after it exists, and the very first apply that creates it can't itself be
-# backed by it (a state backend can't bootstrap into a bucket the same run is
-# what creates). Disaster recovery is the same story in reverse: recovering
-# this Garage instance from scratch requires getting Terraform state back by
-# some other means before this bucket -- and therefore every other workspace's
-# backend -- can be reached again. Pre-existing risk inherited from the MinIO
-# original, not introduced here; flagging for whoever does the cutover.
+# This bucket hosts this repo's own Terraform state for every workspace,
+# including this one -- the first apply that created it could not itself be
+# backed by it (a backend can't bootstrap into a bucket the same run
+# creates). See terraform.tf for the DR consequence of that.
 module "terraform_state" {
   source = "../../modules/garage-bucket"
 
