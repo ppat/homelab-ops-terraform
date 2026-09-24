@@ -1,8 +1,8 @@
 # homelab-ops-terraform
 
-Terraform configuration for a home lab, provisioning Authentik, GitHub, Harbor, and two
-independent MinIO instances. Resources span both local homelab infrastructure (Authentik,
-Harbor, MinIO) and external/cloud services (GitHub).
+Terraform configuration for a home lab, provisioning Authentik, GitHub, Harbor, and a
+MinIO instance. Resources span both local homelab infrastructure (Authentik, Harbor,
+MinIO) and external/cloud services (GitHub).
 
 ## Layout
 
@@ -21,7 +21,6 @@ state/backend.
 | [`github`](workspaces/github) | GitHub org repository configuration |
 | [`harbor`](workspaces/harbor) | Harbor container registry — auth, system config, robot accounts |
 | [`litellm`](workspaces/litellm) | LiteLLM proxy — models, remote MCP servers, and virtual keys |
-| [`minio-homelab`](workspaces/minio-homelab) | MinIO instance on homelab infra — Terraform state and Authentik media buckets |
 | [`minio-nas`](workspaces/minio-nas) | MinIO instance on NAS — CloudNativePG and Longhorn backup buckets |
 | [`versitygw-nas`](workspaces/versitygw-nas) | versitygw object store on NAS — CloudNativePG and Longhorn backup buckets, and their owning accounts |
 
