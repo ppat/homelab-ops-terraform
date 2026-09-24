@@ -4,7 +4,7 @@ module "proxy_longhorn" {
   application_url = "https://longhorn.homelab.${data.bitwarden_secret.dns_zone.value}"
   flows           = local.default_flows
   groups          = [data.authentik_group.homelab_admins.id]
-  icon_url        = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/longhorn.svg"
+  icon_url        = "https://homelab-authentik-media.garage-web.homelab.${data.bitwarden_secret.dns_zone.value}/media/public/application-icons/longhorn.svg"
   launch_url      = "https://longhorn.homelab.${data.bitwarden_secret.dns_zone.value}"
 
   property_mappings = concat(
