@@ -23,6 +23,10 @@ module "repo_mediated_mailbox_mcp" {
     CONTAINER_REGISTRY_PASSWORD = data.bitwarden_secret.harbor_robot_password.value
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
     DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value
+    GMAIL_TEST_ACCOUNT          = data.bitwarden_secret.mediatedmailbox_test_gmailaccount.value
+    GMAIL_TEST_CLIENT_ID        = data.bitwarden_secret.mediatedmailbox_test_gmailclientid.value
+    GMAIL_TEST_CLIENT_SECRET    = data.bitwarden_secret.mediatedmailbox_test_gmailclientsecret.value
+    GMAIL_TEST_REFRESH_TOKEN    = data.bitwarden_secret.mediatedmailbox_test_gmailrefreshtoken.value
     HOMELAB_BOT_APP_ID          = data.bitwarden_secret.homelab_bot_app_id.value
     HOMELAB_BOT_CLIENT_ID       = data.bitwarden_secret.homelab_bot_client_id.value
     HOMELAB_BOT_APP_PRIVATE_KEY = data.bitwarden_secret.homelab_bot_app_private_key.value
