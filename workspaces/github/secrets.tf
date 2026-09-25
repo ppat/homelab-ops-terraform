@@ -46,6 +46,22 @@ data "bitwarden_secret" "homelab_bot_app_private_key" {
   id = "cc6026e0-3dc3-4846-8d6f-b20700f07a90"
 }
 
+data "bitwarden_secret" "mediatedmailbox_test_gmailaccount" {
+  id = "98159a81-e934-4468-8420-b4d0012280e9"
+}
+
+data "bitwarden_secret" "mediatedmailbox_test_gmailclientid" {
+  id = "e851d9e6-7d25-4f71-8478-b4d0011bee59"
+}
+
+data "bitwarden_secret" "mediatedmailbox_test_gmailclientsecret" {
+  id = "2390f338-ec78-43f1-bd39-b4d0011c22af"
+}
+
+data "bitwarden_secret" "mediatedmailbox_test_gmailrefreshtoken" {
+  id = "7d195398-b443-409d-811c-b4d00121c722"
+}
+
 data "bitwarden_secret" "renovate_app_id" {
   id = "221d52a5-c73d-48dd-ba4f-b2f20171ab4e"
 }
