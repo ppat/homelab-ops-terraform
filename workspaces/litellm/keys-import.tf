@@ -2,9 +2,9 @@
 # IMPORT — adopting the five hand-minted keys (DO NOT let terraform apply create them)
 # ==============================================================================
 #
-# This file is about the five ADOPTED keys only. The workspace also holds one key that is
-# genuinely created by Terraform — obsidian-vault-batch-processor, see
-# key-obsidian-vault-batch-processor.tf — which nothing presents yet and which must NOT be
+# This file is about the five ADOPTED keys only. The workspace also holds keys that are
+# genuinely created by Terraform — obsidian-vault-batch-processor and obsidian-vault-lint-pass, see
+# key-obsidian-vault-batch-processor.tf and key-obsidian-vault-lint-pass.tf — which must NOT be
 # imported. The distinction is the whole hazard this file exists to name: an import that should
 # have been a create leaves Terraform managing a key nobody holds, and a create that should have
 # been an import rotates a live credential. Read the last section below before reading a plan that
@@ -118,3 +118,8 @@
 #
 # The consuming ExternalSecret cannot resolve until this apply has run, so the apply is ordered
 # BEFORE the apps repository's reference to the generated Bitwarden name is deployed, never after.
+#
+# obsidian-vault-lint-pass (key-obsidian-vault-lint-pass.tf) is a created key of exactly the same
+# kind, and everything above applies to it under its own module address,
+# module.obsidian_vault_lint_pass: three adds on its first apply, never an import, and its apply
+# ordered before the apps repository deploys the lint pass's ExternalSecret.
