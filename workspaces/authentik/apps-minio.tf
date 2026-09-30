@@ -21,7 +21,7 @@ module "oauth2_minio_nas" {
   client_id            = var.clientid_minionas
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  icon_url             = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/minio_dKwoWUN.svg"
+  icon_url             = "https://homelab-authentik-media.garage-web.homelab.${data.bitwarden_secret.dns_zone.value}/media/public/application-icons/minio_dKwoWUN.svg"
   launch_url           = "https://minio-console.nas.${data.bitwarden_secret.dns_zone.value}"
   signing_key_id       = data.authentik_certificate_key_pair.signing_key_pair.id
 
@@ -42,7 +42,7 @@ module "oauth2_minio_homelab" {
   client_id            = var.clientid_miniohomelab
   flows                = local.default_flows
   groups               = [data.authentik_group.homelab_admins.id, data.authentik_group.homelab_users.id]
-  icon_url             = "https://s3.homelab.${data.bitwarden_secret.dns_zone.value}/homelab-authentik-media/media/public/application-icons/minio.svg"
+  icon_url             = "https://homelab-authentik-media.garage-web.homelab.${data.bitwarden_secret.dns_zone.value}/media/public/application-icons/minio.svg"
   launch_url           = "https://minio-console.homelab.${data.bitwarden_secret.dns_zone.value}"
   signing_key_id       = data.authentik_certificate_key_pair.signing_key_pair.id
 
