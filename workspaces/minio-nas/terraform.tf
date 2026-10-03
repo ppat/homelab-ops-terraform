@@ -17,7 +17,7 @@ terraform {
     }
     minio = {
       source  = "aminueza/minio"
-      version = "3.38.6"
+      version = "3.41.0"
     }
   }
 }
