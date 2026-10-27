@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Overview
 
 Terraform configuration for a home-lab: workspaces provisioning Authentik, GitHub,
-Harbor, and MinIO (two independent instances). Workspaces manage a mix of resources
+Harbor, and MinIO. Workspaces manage a mix of resources
 running on local homelab infrastructure (Authentik, Harbor, MinIO) and on external/cloud
 services (GitHub; more may follow, e.g. Cloudflare, Hetzner) — don't assume a workspace is
 purely local or purely cloud without checking its provider config.
@@ -24,7 +24,7 @@ purely local or purely cloud without checking its provider config.
 ## Repository layout
 
 - `workspaces/<name>/` — root Terraform configurations, each an independent state/backend.
-  Currently: `authentik`, `github`, `harbor`, `minio-homelab`, `minio-nas`. There is also a
+  Currently: `authentik`, `github`, `harbor`, `minio-nas`. There is also a
   `workspaces/cloudflare/` and `modules/cloudflare-tunnel/` placeholder directory (no
   tracked `.tf` files yet) — not a real workspace/module until content is added.
 - `modules/<name>/` — reusable modules consumed by workspaces via relative `source` paths
@@ -42,8 +42,8 @@ provider requirements), `variables.tf`, `main.tf`/resource-specific `*.tf` files
 - **Lock files**: only workspace `.terraform.lock.hcl` files are committed to git; module
   lock files are gitignored (see the comment in `.gitignore`). Don't add a module's lock file
   to a commit.
-- **Backend**: every workspace uses the same S3-compatible backend pointed at a MinIO bucket
-  (`homelab-terraform-state`), keyed as `<workspace-name>/terraform.tfstate`, with
+- **Backend**: every workspace uses the same S3-compatible backend (a Garage bucket named
+  `homelab-terraform-state`), keyed as `<workspace-name>/terraform.tfstate`, with
   `skip_credentials_validation`/`skip_requesting_account_id`/`skip_metadata_api_check`/
   `skip_region_validation`/`force_path_style` all `true`. Modules never define a backend.
 
