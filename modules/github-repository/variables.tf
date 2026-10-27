@@ -78,7 +78,7 @@ variable "require_signed_commits" {
 variable "required_status_checks" {
   type = list(object({
     context        = string
-    integration_id = number
+    integration_id = optional(number)
   }))
   default = []
 }

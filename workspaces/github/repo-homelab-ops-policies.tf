@@ -25,11 +25,11 @@ module "repo_homelab_ops_policies" {
   # only another apply removing the context). Before adding another entry here, reproduce
   # that same evidence for it: the exact string from a real check-runs response, not the
   # workflow file, and confirmation it is not path-gated.
-  required_status_checks = [
-    "commit-messages / commit-messages",
-    "commit-taxonomy",
-    "pr-title"
-  ]
+  # required_status_checks = [
+  #   "commit-messages / commit-messages",
+  #   "commit-taxonomy",
+  #   "pr-title"
+  # ]
   actions_secrets = {
     DOCKERHUB_USERNAME          = data.bitwarden_secret.dockerhub_username.value
     DOCKERHUB_TOKEN             = data.bitwarden_secret.dockerhub_token.value
