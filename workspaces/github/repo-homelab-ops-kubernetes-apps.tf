@@ -78,18 +78,24 @@ module "repo_homelab_ops_kubernetes_apps" {
   # to remove it here, apply, merge, restore. Keep that cost in mind before adding a
   # fifth entry.
   required_status_checks = [
-    "kubernetes-manifests",
-    "detect-changes / detect-changed-files",
-    "pre-commit / pre-commit",
-    "commit-taxonomy"
+    {
+      context        = "commit-taxonomy"
+      integration_id = 15368
+    },
+    {
+      context        = "detect-changes / detect-changed-files"
+      integration_id = 15368
+    },
+    {
+      context        = "kubernetes-manifests"
+      integration_id = 15368
+    },
+    {
+      context        = "pre-commit / pre-commit"
+      integration_id = 15368
+    }
   ]
-  # strict stays false. Measured: strict is entirely inert while contexts is empty, so the
-  # module default did nothing until #280 gave this repo a non-empty list on 2026-08-03 --
-  # which means #280 switched on the up-to-date requirement for the first time, and #288
-  # turned it off nine days later. The contexts were never the problem (they report on
-  # 300/300 sampled PRs and essentially never fail); strict was. With 4-39 merges/day into
-  # main, every merge flips every open PR to "behind" and forces a full CI re-run.
-  required_status_checks_strict = false
+
   # AGENT IDENTITY BOUNDARY (see modules/github-repository/ruleset.tf for how the
   # ruleset composes with classic branch protection, and for the residual it accepts)
   #

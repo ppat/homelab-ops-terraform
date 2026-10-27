@@ -84,12 +84,30 @@ resource "github_repository_ruleset" "main" {
   }
 
   rules {
+    deletion                = true
+    non_fast_forward        = true
+    required_linear_history = true
+    required_signatures     = var.require_signed_commits
+
     pull_request {
       required_approving_review_count   = var.main_ruleset_required_approving_review_count
       dismiss_stale_reviews_on_push     = false
       require_code_owner_review         = false
       require_last_push_approval        = false
       required_review_thread_resolution = false
+    }
+
+    required_status_checks {
+      do_not_enforce_on_create             = true
+      strict_required_status_checks_policy = false
+
+      dynamic "required_check" {
+        for_each = var.required_status_checks
+        content {
+          context        = required_check.value.context
+          integration_id = required_check.value.integration_id
+        }
+      }
     }
   }
 }

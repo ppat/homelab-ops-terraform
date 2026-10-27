@@ -1,4 +1,6 @@
 resource "github_branch_protection" "main" {
+  count = var.main_ruleset_enabled ? 0 : 1
+
   repository_id                   = github_repository.repository.node_id
   pattern                         = "main"
   allows_deletions                = false
@@ -8,9 +10,4 @@ resource "github_branch_protection" "main" {
   require_conversation_resolution = false
   required_linear_history         = true
   require_signed_commits          = var.require_signed_commits
-
-  required_status_checks {
-    strict   = var.required_status_checks_strict
-    contexts = var.required_status_checks
-  }
 }
