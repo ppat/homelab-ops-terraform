@@ -76,13 +76,11 @@ variable "require_signed_commits" {
 }
 
 variable "required_status_checks" {
-  type    = list(string)
+  type = list(object({
+    context        = string
+    integration_id = optional(number)
+  }))
   default = []
-}
-
-variable "required_status_checks_strict" {
-  type    = bool
-  default = true
 }
 
 variable "topics" {
