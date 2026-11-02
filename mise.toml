@@ -1,6 +1,6 @@
 [tools]
 bun            = "1.4.2"
-node           = "24.21.0"
+node           = "26.13.0"
 "pipx:checkov" = "3.3.19"
 # Not tooling: modules/versitygw-account shells `python3` on every apply and destroy path
 # it has, so a machine without one fails part-way through the apply that mints credentials
