@@ -16,12 +16,9 @@
   "configMigration": true,
   "dependencyDashboard": true,
   "extends": [
-    ":ignoreModulesAndTests",
     "abandonments:recommended",
     "docker:pinDigests",
     "helpers:pinGitHubActionDigests",
-    "mergeConfidence:age-confidence-badges",
-    "mergeConfidence:all-badges",
     "github>ppat/renovate-presets#v0.3.0",
     "github>ppat/renovate-presets:dev-tools#v0.3.0",
     "github>ppat/renovate-presets:github-actions#v0.3.0",
@@ -35,7 +32,7 @@
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "printConfig": true,
-  "rebaseWhen": "behind-base-branch",
+  "rebaseWhen": "conflicted",
   "suppressNotifications": [
     "prEditedNotification",
     "prIgnoreNotification"
