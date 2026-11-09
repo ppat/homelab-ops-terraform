@@ -1,10 +1,15 @@
-# openclaw: 8 explicit models; MCP via explicit object_permission (Shape B, this module's
+# openclaw: 10 explicit models; MCP via explicit object_permission (Shape B, this module's
 # REST seam) across 5 servers, each with its own bespoke tool allowlist — NOT a copy of n8n's
 # profile (compare the grafana list here to key-n8n.tf's: openclaw's is far broader, including
-# incident management, Athena/ClickHouse/Snowflake, Sift, and on-call). Transcribed verbatim
-# from the owner-supplied live-key-config-verbatim.json (GET /key/list on the homelab proxy,
-# 2026-08-10) and verified programmatically against that source — see the PR description/report
-# for the verification method and counts.
+# incident management, Athena/ClickHouse/Snowflake, Sift, and on-call). The MCP lists were
+# transcribed verbatim from the owner-supplied live-key-config-verbatim.json (GET /key/list on
+# the homelab proxy, 2026-08-10) and verified programmatically against that source — see the PR
+# description/report for the verification method and counts.
+#
+# The `openrouter/...` entries are openclaw's chat models (agents.defaults.model in the clusters
+# repo's openclaw.json). The proxy serves them only through its `openrouter/*` wildcard; they are
+# listed by name rather than granting `openrouter/*`, which would open every OpenRouter model to
+# this key.
 module "openclaw" {
   source = "../../modules/litellm-virtual-key"
 
@@ -15,6 +20,8 @@ module "openclaw" {
     "google/gemini-3.5-flash-lite",
     "deepseek/deepseek-v4-pro",
     "deepseek/deepseek-v4-flash",
+    "openrouter/deepseek/deepseek-v4-flash-0731",
+    "openrouter/z-ai/glm-5.3-flash",
     "openai/text-embedding-3-small",
     "openai/gpt-4o-mini",
     "text-embedding-3-small",
