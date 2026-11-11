@@ -146,5 +146,6 @@ module "repo_homelab_ops_kubernetes_apps" {
     RENOVATE_APP_ID             = data.bitwarden_secret.renovate_app_id.value
     RENOVATE_CLIENT_ID          = data.bitwarden_secret.renovate_client_id.value
     RENOVATE_APP_PRIVATE_KEY    = data.bitwarden_secret.renovate_app_private_key.value
+    RESEARCH_AGENT_ENV          = data.bitwarden_secret.ci_research_agent_env.value
   }
 }

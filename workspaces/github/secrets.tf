@@ -2,6 +2,11 @@ data "bitwarden_secret" "ansible_galaxy_api_token" {
   id = "ee776c16-2e8e-4dd9-afdc-b2f2016fcb25"
 }
 
+# Looked up by name rather than id, so the secret can be created without editing this file.
+data "bitwarden_secret" "ci_research_agent_env" {
+  key = "ci_research_agent_env"
+}
+
 data "bitwarden_secret" "coder_ci_email" {
   id = "6b1840e1-a630-4e3a-bfb4-b2f20172b210"
 }
