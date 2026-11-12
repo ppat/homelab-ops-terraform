@@ -2,10 +2,10 @@
 # IMPORT — adopting the five hand-minted keys (DO NOT let terraform apply create them)
 # ==============================================================================
 #
-# This file is about the five ADOPTED keys only. The workspace also holds one key that is
-# genuinely created by Terraform — obsidian-vault-batch-processor, see
-# key-obsidian-vault-batch-processor.tf — which nothing presents yet and which must NOT be
-# imported. The distinction is the whole hazard this file exists to name: an import that should
+# This file is about the five ADOPTED keys only. The workspace also holds keys that are
+# genuinely created by Terraform, obsidian-vault-batch-processor (see
+# key-obsidian-vault-batch-processor.tf) and health-triage (see key-health-triage.tf), which must
+# NOT be imported. The distinction is the whole hazard this file exists to name: an import that should
 # have been a create leaves Terraform managing a key nobody holds, and a create that should have
 # been an import rotates a live credential. Read the last section below before reading a plan that
 # contains both.
@@ -118,3 +118,7 @@
 #
 # The consuming ExternalSecret cannot resolve until this apply has run, so the apply is ordered
 # BEFORE the apps repository's reference to the generated Bitwarden name is deployed, never after.
+#
+# health-triage (key-health-triage.tf) is the same case: three creates on its first apply, never an
+# import. Its consumer is the clusters repository's n8n-workflow-secrets ExternalSecret, which
+# references apikey_litellm_healthtriage and must be deployed after that apply.

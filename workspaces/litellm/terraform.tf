@@ -17,7 +17,7 @@ terraform {
     }
     litellm = {
       source  = "ncecere/litellm"
-      version = "2.1.0"
+      version = "2.2.3"
     }
     # Used only by modules/litellm-virtual-key's object_permission REST seam — see the
     # comment at the top of that module's object-permission.tf for why it's needed and
@@ -30,9 +30,7 @@ terraform {
 }
 
 provider "bitwarden" {
-  experimental {
-    embedded_client = true
-  }
+  client_implementation = "embedded"
 }
 
 provider "litellm" {
