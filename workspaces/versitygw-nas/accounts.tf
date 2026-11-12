@@ -24,6 +24,7 @@ module "accounts" {
 
   accounts = {
     cloudnativepg = { bucket = "${local.bucket_prefix}-cloudnativepg-backups" }
+    health-canary = { bucket = "${local.bucket_prefix}-health-canary" }
     longhorn      = { bucket = "${local.bucket_prefix}-longhorn-backups" }
 
     # Owns no bucket. What it buys is revocability, not distance from root: the admin gate
