@@ -8,17 +8,8 @@
 module "openclaw" {
   source = "../../modules/litellm-virtual-key"
 
-  consumer = "openclaw"
-  models = [
-    "openai/gpt-mini-latest",
-    "openai/gpt-5-nano",
-    "google/gemini-3.5-flash-lite",
-    "deepseek/deepseek-v4-pro",
-    "deepseek/deepseek-v4-flash",
-    "openai/text-embedding-3-small",
-    "openai/gpt-4o-mini",
-    "text-embedding-3-small",
-  ]
+  consumer            = "openclaw"
+  unrestricted_models = true
 
   mcp_server_aliases = [
     "context7",
